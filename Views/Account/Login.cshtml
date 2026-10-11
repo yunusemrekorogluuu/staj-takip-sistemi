@@ -1,0 +1,564 @@
+﻿@* @{
+    ViewData["Title"] = "Giriş Yap";
+    Layout = null;
+}
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Staj Takip — Giriş</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet" />
+    <style>
+        body {
+            background: #f0f4f8;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+        }
+
+        .login-card {
+            border: none;
+            border-radius: 16px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.10);
+        }
+
+        .login-header {
+            background: linear-gradient(135deg, #1e3a5f, #2e86de);
+            border-radius: 16px 16px 0 0;
+        }
+
+        .btn-login {
+            background: linear-gradient(135deg, #1e3a5f, #2e86de);
+            border: none;
+            border-radius: 8px;
+        }
+
+            .btn-login:hover {
+                opacity: 0.9;
+            }
+
+        .input-group {
+            flex-wrap: nowrap;
+        }
+
+        .input-group-text {
+            background: #fff;
+            border-right: none;
+        }
+
+        .form-control {
+            border-left: none;
+        }
+
+            .form-control:focus {
+                border-color: #ced4da;
+                box-shadow: none;
+                outline: none;
+            }
+
+        .input-group:focus-within {
+            border: 1px solid #2e86de;
+            border-radius: 6px;
+        }
+
+            .input-group:focus-within .input-group-text,
+            .input-group:focus-within .form-control {
+                border-color: transparent;
+                box-shadow: none;
+            }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-5 col-lg-4">
+                <div class="card login-card">
+                    <div class="login-header text-white text-center py-4 px-4">
+                        <i class="bi bi-briefcase-fill fs-1"></i>
+                        <h4 class="mt-2 mb-0 fw-bold">Staj Takip Sistemi</h4>
+                        <small class="opacity-75">Hesabınıza giriş yapın</small>
+                    </div>
+                    <div class="card-body p-4">
+
+                        @if (ViewBag.Error != null)
+                        {
+                            <div class="alert alert-danger py-2 small">
+                                <i class="bi bi-exclamation-circle me-1"></i>@ViewBag.Error
+                            </div>
+                        }
+
+                        @if (TempData["Success"] != null)
+                        {
+                            <div class="alert alert-success py-2 small">
+                                <i class="bi bi-check-circle me-1"></i>@TempData["Success"]
+                            </div>
+                        }
+
+                        <form method="post" action="/Account/Login" onsubmit="return validateLogin()">
+                            <div class="mb-3">
+                                <label class="form-label small fw-semibold">E-posta</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="bi bi-envelope"></i></span>
+                                    <input type="email" name="email" class="form-control"
+                                           placeholder="ornek@email.com" required />
+                                </div>
+                            </div>
+                            <div class="mb-4">
+                                <label class="form-label small fw-semibold">Şifre</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="bi bi-lock"></i></span>
+                                    <input type="password" name="password" class="form-control"
+                                           placeholder="••••••••" required />
+                                </div>
+                            </div>
+                            <button type="submit" class="btn btn-login btn-primary w-100 py-2 fw-semibold text-white">
+                                <i class="bi bi-box-arrow-in-right me-2"></i>Giriş Yap
+                            </button>
+                        </form>
+
+                        <hr class="my-3" />
+
+                        <div class="text-center small text-muted">
+                            Hesabınız yok mu?
+                            <a href="/Account/Register" class="text-decoration-none fw-semibold">Kayıt Ol</a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="text-center mt-3 small text-muted">
+                    <i class="bi bi-shield-check me-1"></i>Güvenli bağlantı
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+            function validateLogin() {
+            const email    = document.querySelector('input[name="email"]').value;
+            const password = document.querySelector('input[name="password"]').value;
+
+            const emailError    = document.getElementById('emailError');
+            const passwordError = document.getElementById('passwordError');
+
+            emailError.textContent    = '';
+            passwordError.textContent = '';
+
+            let valid = true;
+
+            if (!email || !email.includes('\u0040')) {
+                emailError.textContent = 'Geçerli bir e-posta adresi giriniz.';
+                valid = false;
+            }
+
+            if (!password || password.length < 6) {
+                passwordError.textContent = 'Şifre en az 6 karakter olmalıdır.';
+                valid = false;
+            }
+
+            return valid;
+        }
+</script>
+</body>
+</html> *@
+
+@{
+    ViewData["Title"] = "Giriş Yap";
+    Layout = null;
+}
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Staj Takip — Giriş</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet" />
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #0f1923;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        .login-wrapper {
+            width: 100%;
+            max-width: 1000px;
+            padding: 2rem;
+        }
+
+        .system-title {
+            text-align: center;
+            color: #fff;
+            font-size: 1.4rem;
+            font-weight: 700;
+            margin-bottom: 0.3rem;
+            letter-spacing: 1px;
+        }
+
+        .system-subtitle {
+            text-align: center;
+            color: rgba(255,255,255,0.4);
+            font-size: 0.85rem;
+            margin-bottom: 2.5rem;
+        }
+
+        /* ROL KARTLARI */
+        .role-cards {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .role-card {
+            border-radius: 16px;
+            padding: 1.5rem 1rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+            position: relative;
+            overflow: hidden;
+        }
+
+            .role-card::before {
+                content: '';
+                position: absolute;
+                inset: 0;
+                opacity: 0;
+                transition: opacity 0.3s;
+            }
+
+            .role-card.student {
+                background: rgba(46, 134, 222, 0.1);
+                border-color: rgba(46,134,222,0.2);
+            }
+
+            .role-card.advisor {
+                background: rgba(111, 66, 193, 0.1);
+                border-color: rgba(111,66,193,0.2);
+            }
+
+            .role-card.company {
+                background: rgba(26, 158, 95, 0.1);
+                border-color: rgba(26,158,95,0.2);
+            }
+
+            .role-card.student:hover, .role-card.student.active {
+                border-color: #2e86de;
+                background: rgba(46,134,222,0.2);
+                transform: translateY(-4px);
+                box-shadow: 0 8px 32px rgba(46,134,222,0.3);
+            }
+
+            .role-card.advisor:hover, .role-card.advisor.active {
+                border-color: #6f42c1;
+                background: rgba(111,66,193,0.2);
+                transform: translateY(-4px);
+                box-shadow: 0 8px 32px rgba(111,66,193,0.3);
+            }
+
+            .role-card.company:hover, .role-card.company.active {
+                border-color: #1a9e5f;
+                background: rgba(26,158,95,0.2);
+                transform: translateY(-4px);
+                box-shadow: 0 8px 32px rgba(26,158,95,0.3);
+            }
+
+        .role-icon {
+            font-size: 2.5rem;
+            margin-bottom: 0.75rem;
+            display: block;
+        }
+
+        .role-card.student .role-icon {
+            color: #2e86de;
+        }
+
+        .role-card.advisor .role-icon {
+            color: #6f42c1;
+        }
+
+        .role-card.company .role-icon {
+            color: #1a9e5f;
+        }
+
+        .role-name {
+            color: #fff;
+            font-size: 0.95rem;
+            font-weight: 600;
+            display: block;
+            margin-bottom: 0.25rem;
+        }
+
+        .role-desc {
+            color: rgba(255,255,255,0.4);
+            font-size: 0.75rem;
+        }
+
+        .role-card.active .role-name {
+            color: #fff;
+        }
+
+        /* GİRİŞ FORMU */
+        .login-form-box {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 20px;
+            padding: 2rem;
+            backdrop-filter: blur(10px);
+        }
+
+        .form-label {
+            color: rgba(255,255,255,0.6);
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 0.4rem;
+        }
+
+        .input-group-text {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-right: none;
+            color: rgba(255,255,255,0.4);
+        }
+
+        .form-control {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-left: none;
+            color: #fff;
+        }
+
+            .form-control::placeholder {
+                color: rgba(255,255,255,0.2);
+            }
+
+            .form-control:focus {
+                background: rgba(255,255,255,0.08);
+                color: #fff;
+                box-shadow: none;
+                border-color: rgba(255,255,255,0.2);
+            }
+
+        .input-group:focus-within .input-group-text,
+        .input-group:focus-within .form-control {
+            border-color: var(--accent);
+        }
+
+        .btn-login {
+            border: none;
+            border-radius: 10px;
+            padding: 0.75rem;
+            font-weight: 600;
+            font-size: 0.95rem;
+            width: 100%;
+            color: #fff;
+            background: var(--accent-grad);
+            transition: opacity 0.2s, transform 0.2s;
+        }
+
+            .btn-login:hover {
+                opacity: 0.9;
+                transform: translateY(-1px);
+                color: #fff;
+            }
+
+        .divider {
+            color: rgba(255,255,255,0.2);
+            font-size: 0.8rem;
+            text-align: center;
+            margin: 1rem 0;
+        }
+
+        .register-link {
+            text-align: center;
+            color: rgba(255,255,255,0.4);
+            font-size: 0.85rem;
+        }
+
+            .register-link a {
+                color: var(--accent);
+                text-decoration: none;
+                font-weight: 600;
+            }
+
+        .alert {
+            background: rgba(220,53,69,0.15);
+            border: 1px solid rgba(220,53,69,0.3);
+            color: #ff6b6b;
+            border-radius: 10px;
+            font-size: 0.85rem;
+        }
+
+        .alert-success {
+            background: rgba(25,135,84,0.15);
+            border: 1px solid rgba(25,135,84,0.3);
+            color: #6bffb8;
+        }
+
+        #passwordError, #emailError {
+            color: #ff6b6b;
+            font-size: 0.78rem;
+            margin-top: 0.3rem;
+        }
+
+        /* Varsayılan: öğrenci aksanı */
+        :root {
+            --accent: #2e86de;
+            --accent-grad: linear-gradient(135deg, #1e3a5f, #2e86de);
+        }
+    </style>
+</head>
+<body>
+    <div class="login-wrapper">
+
+        <!-- Başlık -->
+        <div class="system-title">
+            <i class="bi bi-briefcase-fill me-2"></i>STAJ TAKİP SİSTEMİ
+        </div>
+        <div class="system-subtitle">Rolünüzü seçerek giriş yapın</div>
+
+        <!-- Rol kartları -->
+        <div class="role-cards">
+            <div class="role-card student active" onclick="selectRole('student', this)">
+                <i class="bi bi-mortarboard-fill role-icon"></i>
+                <span class="role-name">Öğrenci</span>
+                <span class="role-desc">Başvurularını takip et</span>
+            </div>
+            <div class="role-card advisor" onclick="selectRole('advisor', this)">
+                <i class="bi bi-person-badge-fill role-icon"></i>
+                <span class="role-name">Akademisyen</span>
+                <span class="role-desc">Öğrencilerini yönet</span>
+            </div>
+            <div class="role-card company" onclick="selectRole('company', this)">
+                <i class="bi bi-building role-icon"></i>
+                <span class="role-name">Staj Şirketi</span>
+                <span class="role-desc">Başvuruları değerlendir</span>
+            </div>
+        </div>
+
+        <!-- Giriş formu -->
+        <div class="login-form-box">
+
+            @if (ViewBag.Error != null)
+            {
+                <div class="alert mb-3 py-2">
+                    <i class="bi bi-exclamation-circle me-1"></i>@ViewBag.Error
+                </div>
+            }
+
+            @if (TempData["Success"] != null)
+            {
+                <div class="alert alert-success mb-3 py-2">
+                    <i class="bi bi-check-circle me-1"></i>@TempData["Success"]
+                </div>
+            }
+
+            <form method="post" action="/Account/Login" onsubmit="return validateLogin()">
+                <input type="hidden" name="selectedRole" id="selectedRole" value="Student" />
+                <div class="mb-3">
+                    <label class="form-label">E-posta</label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="bi bi-envelope"></i></span>
+                        <input type="email" name="email" class="form-control"
+                               placeholder="ornek@email.com" required />
+                    </div>
+                    <div id="emailError"></div>
+                </div>
+
+                <div class="mb-4">
+                    <label class="form-label">Şifre</label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="bi bi-lock"></i></span>
+                        <input type="password" name="password" class="form-control"
+                               placeholder="••••••••" required />
+                        <span class="input-group-text" style="border-left:none;cursor:pointer"
+                              onclick="togglePass(this)">
+                            <i class="bi bi-eye"></i>
+                        </span>
+                    </div>
+                    <div id="passwordError"></div>
+                </div>
+
+                <button type="submit" class="btn-login">
+                    <i class="bi bi-box-arrow-in-right me-2"></i>Giriş Yap
+                </button>
+            </form>
+
+            <div class="divider">— veya —</div>
+
+            <div class="register-link">
+                Hesabınız yok mu?
+                <a href="/Account/Register">Kayıt Ol</a>
+            </div>
+        </div>
+
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        const accents = {
+            student: { color: '#2e86de', grad: 'linear-gradient(135deg,#1e3a5f,#2e86de)' },
+            advisor: { color: '#6f42c1', grad: 'linear-gradient(135deg,#3d1a6e,#6f42c1)' },
+            company: { color: '#1a9e5f', grad: 'linear-gradient(135deg,#0d5c3a,#1a9e5f)' }
+        };
+
+        function selectRole(role, el) {
+            document.querySelectorAll('.role-card').forEach(c => c.classList.remove('active'));
+            el.classList.add('active');
+            const a = accents[role];
+            document.documentElement.style.setProperty('--accent', a.color);
+            document.documentElement.style.setProperty('--accent-grad', a.grad);
+
+         const roleMap = { student: 'Student', advisor: 'Advisor', company: 'Company' };
+         document.getElementById('selectedRole').value = roleMap[role];
+        }
+
+        function togglePass(btn) {
+            const input = btn.previousElementSibling;
+            const icon  = btn.querySelector('i');
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.className = 'bi bi-eye-slash';
+            } else {
+                input.type = 'password';
+                icon.className = 'bi bi-eye';
+            }
+        }
+
+        function validateLogin() {
+            const email    = document.querySelector('input[name="email"]').value;
+            const password = document.querySelector('input[name="password"]').value;
+            const emailErr = document.getElementById('emailError');
+            const passErr  = document.getElementById('passwordError');
+            emailErr.textContent = '';
+            passErr.textContent  = '';
+            let valid = true;
+
+            if (!email || !email.includes('\u0040')) {
+                emailErr.textContent = 'Geçerli bir e-posta adresi giriniz.';
+                valid = false;
+            }
+            if (!password || password.length < 6) {
+                passErr.textContent = 'Şifre en az 6 karakter olmalıdır.';
+                valid = false;
+            }
+            return valid;
+        }
+    </script>
+</body>
+</html>

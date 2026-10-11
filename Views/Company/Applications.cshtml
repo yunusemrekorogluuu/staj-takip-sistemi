@@ -1,0 +1,171 @@
+﻿@model List<StajTakip.Entities.Concrete.Application>
+@{
+    ViewData["Title"] = "Başvurular";
+}
+
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Staj Takip — Başvurular</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet" />
+    <style>
+        body { background: #f0f4f8; }
+        .sidebar {
+            background: linear-gradient(180deg, #0d5c3a, #1a9e5f);
+            min-height: 100vh; width: 240px;
+            position: fixed; top: 0; left: 0;
+            padding: 1.5rem 1rem; z-index: 100;
+        }
+        .sidebar .nav-link {
+            color: rgba(255,255,255,0.75);
+            border-radius: 8px; padding: 0.6rem 1rem;
+            margin-bottom: 4px; transition: all 0.2s;
+        }
+        .sidebar .nav-link:hover, .sidebar .nav-link.active {
+            background: rgba(255,255,255,0.15); color: #fff;
+        }
+        .main-content { margin-left: 240px; padding: 2rem; }
+        .app-card { border: none; border-radius: 12px; box-shadow: 0 2px 12px rgba(0,0,0,0.07); transition: transform 0.2s; }
+        .app-card:hover { transform: translateY(-2px); }
+        .badge-status { font-size: 0.75rem; padding: 0.4em 0.8em; border-radius: 20px; }
+        .filter-btn { border-radius: 20px; font-size: 0.85rem; }
+    </style>
+</head>
+<body>
+
+<div class="sidebar">
+    <div class="text-white text-center mb-4">
+        <i class="bi bi-building fs-3"></i>
+        <div class="fw-bold mt-1">Staj Takip</div>
+        <small class="opacity-75">@User.Identity?.Name</small>
+    </div>
+    <nav class="nav flex-column">
+        <a href="/Company/Dashboard" class="nav-link">
+            <i class="bi bi-speedometer2 me-2"></i>Dashboard
+        </a>
+        <a href="/Company/Applications" class="nav-link active">
+            <i class="bi bi-list-ul me-2"></i>Başvurular
+        </a>
+        <a href="/Company/MyPosts" class="nav-link">
+            <i class="bi bi-megaphone me-2"></i>İlanlarım
+        </a>
+        <a href="/Company/PostInternship" class="nav-link">
+            <i class="bi bi-plus-circle me-2"></i>İlan Yayınla
+        </a>
+    </nav>
+    <div class="position-absolute bottom-0 start-0 w-100 p-3">
+            <a href="/Company/Profile" class="nav-link">
+                <i class="bi bi-person-circle me-2"></i>Profilim
+            </a>
+            <a href="/Message/Inbox" class="nav-link">
+                <i class="bi bi-chat-dots me-2"></i>Mesajlar
+            </a>
+        <a href="/Account/Logout" class="nav-link text-white-50">
+            <i class="bi bi-box-arrow-left me-2"></i>Çıkış Yap
+        </a>
+    </div>
+</div>
+
+<div class="main-content">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h4 class="fw-bold mb-0">Gelen Başvurular</h4>
+            <small class="text-muted">Staj ilanlarınıza gelen başvurular</small>
+        </div>
+    </div>
+
+    <!-- Filtreler -->
+    <div class="d-flex gap-2 flex-wrap mb-4">
+        <a href="/Company/Applications" class="btn btn-sm filter-btn @(ViewBag.CurrentStatus == null ? "btn-success" : "btn-outline-secondary")">
+            Tümü
+        </a>
+        <a href="/Company/Applications?status=Sent" class="btn btn-sm filter-btn @(ViewBag.CurrentStatus == "Sent" ? "btn-primary" : "btn-outline-primary")">
+            Bekleyenler
+        </a>
+        <a href="/Company/Applications?status=Interview" class="btn btn-sm filter-btn @(ViewBag.CurrentStatus == "Interview" ? "btn-warning" : "btn-outline-warning")">
+            Mülakat
+        </a>
+        <a href="/Company/Applications?status=Accepted" class="btn btn-sm filter-btn @(ViewBag.CurrentStatus == "Accepted" ? "btn-success" : "btn-outline-success")">
+            Kabul
+        </a>
+        <a href="/Company/Applications?status=Rejected" class="btn btn-sm filter-btn @(ViewBag.CurrentStatus == "Rejected" ? "btn-danger" : "btn-outline-danger")">
+            Reddedildi
+        </a>
+    </div>
+
+    @if (Model != null && Model.Any())
+    {
+        <div class="row g-3">
+            @foreach (var app in Model)
+            {
+               
+                    var (bg, icon, label) = app.Status switch
+                    {
+                        StajTakip.Entities.Concrete.ApplicationStatus.Sent      => ("primary", "send", "Bekliyor"),
+                        StajTakip.Entities.Concrete.ApplicationStatus.Interview => ("warning", "chat-dots", "Mülakat"),
+                        StajTakip.Entities.Concrete.ApplicationStatus.Accepted  => ("success", "check-circle", "Kabul"),
+                        StajTakip.Entities.Concrete.ApplicationStatus.Rejected  => ("danger", "x-circle", "Red"),
+                        _ => ("secondary", "clock", "-")
+                    };
+                
+                <div class="col-md-6 col-lg-4">
+                    <div class="card app-card h-100 p-4">
+                        <div class="d-flex justify-content-between align-items-start mb-3">
+                            <div>
+                                <h6 class="fw-bold mb-1">@app.Student?.FullName</h6>
+                                <div class="text-muted small">@app.Student?.Department</div>
+                            </div>
+                            <span class="badge bg-@bg bg-opacity-10 text-@bg badge-status">
+                                <i class="bi bi-@icon me-1"></i>@label
+                            </span>
+                        </div>
+
+                        <div class="text-muted small mb-3">
+                            <i class="bi bi-briefcase me-1"></i>@app.Position
+                            @if (app.InternshipPost != null)
+                            {
+                                <span class="ms-2"><i class="bi bi-megaphone me-1"></i>@app.InternshipPost.Title</span>
+                            }
+                        </div>
+
+                        @if (app.ApplicationDate.HasValue)
+                        {
+                            <div class="text-muted small mb-3">
+                                <i class="bi bi-calendar me-1"></i>@app.ApplicationDate.Value.ToString("dd.MM.yyyy")
+                            </div>
+                        }
+
+                        <div class="d-flex gap-2 mt-auto">
+                            <a href="/Company/ApplicationDetail/@app.Id"
+                               class="btn btn-sm btn-outline-success rounded-pill flex-grow-1">
+                                <i class="bi bi-eye me-1"></i>İncele
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+    else
+    {
+        <div class="card border-0 rounded-3 shadow-sm">
+            <div class="card-body text-center py-5 text-muted">
+                <i class="bi bi-inbox fs-1 d-block mb-3"></i>
+                <h6>Henüz başvuru yok</h6>
+                <p class="small">Staj ilanı yayınlayarak başvuru almaya başlayın.</p>
+                <a href="/Company/PostInternship" class="btn btn-success rounded-pill px-4">
+                    <i class="bi bi-plus-lg me-1"></i>İlan Yayınla
+                </a>
+            </div>
+        </div>
+    }
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

@@ -1,0 +1,172 @@
+﻿@{
+    ViewData["Title"] = "Yeni Mesaj";
+    var contacts = ViewBag.Contacts as List<StajTakip.Entities.Concrete.User>;
+}
+
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Staj Takip — Yeni Mesaj</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet" />
+    <style>
+        body {
+            background: #f0f4f8;
+        }
+
+        .sidebar {
+            background: linear-gradient(180deg, #1e3a5f, #2e86de);
+            min-height: 100vh;
+            width: 240px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            padding: 1.5rem 1rem;
+            z-index: 100;
+        }
+
+            .sidebar .nav-link {
+                color: rgba(255,255,255,0.75);
+                border-radius: 8px;
+                padding: 0.6rem 1rem;
+                margin-bottom: 4px;
+                transition: all 0.2s;
+            }
+
+                .sidebar .nav-link:hover, .sidebar .nav-link.active {
+                    background: rgba(255,255,255,0.15);
+                    color: #fff;
+                }
+
+        .main-content {
+            margin-left: 240px;
+            padding: 2rem;
+        }
+
+        .contact-card {
+            border: none;
+            border-radius: 12px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+            transition: transform 0.2s;
+            cursor: pointer;
+        }
+
+            .contact-card:hover {
+                transform: translateY(-2px);
+            }
+
+        .avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="sidebar">
+        <div class="text-white text-center mb-4">
+            <i class="bi bi-briefcase-fill fs-3"></i>
+            <div class="fw-bold mt-1">Staj Takip</div>
+            <small class="opacity-75">@User.Identity?.Name</small>
+        </div>
+        <nav class="nav flex-column">
+            @{
+                var role = User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value;
+            }
+            @if (role == "Student")
+            {
+                <a href="/Student/Dashboard" class="nav-link"><i class="bi bi-speedometer2 me-2"></i>Dashboard</a>
+                <a href="/Student/Applications" class="nav-link"><i class="bi bi-list-ul me-2"></i>Başvurularım</a>
+                <a href="/Student/Internships" class="nav-link"><i class="bi bi-search me-2"></i>Staj İlanları</a>
+            }
+            else if (role == "Advisor")
+            {
+                <a href="/Advisor/Dashboard" class="nav-link"><i class="bi bi-speedometer2 me-2"></i>Dashboard</a>
+                <a href="/Advisor/Students" class="nav-link"><i class="bi bi-people me-2"></i>Öğrencilerim</a>
+                <a href="/Advisor/PendingApprovals" class="nav-link"><i class="bi bi-hourglass-split me-2"></i>Onay Bekleyenler</a>
+            }
+            else if (role == "Company")
+            {
+                <a href="/Company/Dashboard" class="nav-link"><i class="bi bi-speedometer2 me-2"></i>Dashboard</a>
+                <a href="/Company/Applications" class="nav-link"><i class="bi bi-list-ul me-2"></i>Başvurular</a>
+                <a href="/Company/MyPosts" class="nav-link"><i class="bi bi-megaphone me-2"></i>İlanlarım</a>
+            }
+            <a href="/Message/Inbox" class="nav-link"><i class="bi bi-chat-dots me-2"></i>Mesajlar</a>
+            <a href="/Message/NewMessage" class="nav-link active"><i class="bi bi-pencil-square me-2"></i>Yeni Mesaj</a>
+        </nav>
+        <div class="position-absolute bottom-0 start-0 w-100 p-3">
+            <a href="/Account/Logout" class="nav-link text-white-50">
+                <i class="bi bi-box-arrow-left me-2"></i>Çıkış Yap
+            </a>
+        </div>
+    </div>
+
+    <div class="main-content">
+
+        <div class="mb-4">
+            <a href="/Message/Inbox" class="text-decoration-none text-muted small">
+                <i class="bi bi-arrow-left me-1"></i>Mesajlara dön
+            </a>
+            <h4 class="fw-bold mt-2 mb-0">Yeni Mesaj</h4>
+            <small class="text-muted">Mesaj göndermek istediğiniz kişiyi seçin</small>
+        </div>
+
+        @if (contacts != null && contacts.Any())
+        {
+            <div class="row g-3">
+                @foreach (var contact in contacts)
+                {
+                    var avatarBg = contact.Role?.Name == "Advisor" ? "#6f42c1" :
+                    contact.Role?.Name == "Company" ? "#1a9e5f" : "#2e86de";
+                    var roleLabel = contact.Role?.Name switch
+                    {
+                        "Advisor" => "Akademisyen",
+                        "Company" => "Şirket",
+                        _ => "Öğrenci"
+                    };
+
+                    <div class="col-md-6 col-lg-4">
+                        <a href="/Message/Conversation?userId=@contact.Id"
+                           class="card contact-card p-3 text-decoration-none">
+                            <div class="d-flex align-items-center gap-3">
+                                <div class="avatar" style="background:@avatarBg">
+                                    @contact.FullName[0]
+                                </div>
+                                <div>
+                                    <div class="fw-semibold">@contact.FullName</div>
+                                    <div class="text-muted small">@contact.Email</div>
+                                    <span class="badge mt-1" style="background:@(avatarBg)22;color:@avatarBg;font-size:0.7rem">
+                                        @roleLabel
+                                    </span>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                }
+            </div>
+        }
+        else
+        {
+            <div class="card border-0 rounded-3 shadow-sm">
+                <div class="card-body text-center py-5 text-muted">
+                    <i class="bi bi-people fs-1 d-block mb-3"></i>
+                    <h6>Mesaj gönderebileceğiniz kişi yok</h6>
+                    <p class="small">Önce bir staj ilanına başvurmanız gerekiyor.</p>
+                </div>
+            </div>
+        }
+
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

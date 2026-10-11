@@ -1,0 +1,188 @@
+﻿@{
+    ViewData["Title"] = "İlan Yayınla";
+}
+
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Staj Takip — İlan Yayınla</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet" />
+    <style>
+        body {
+            background: #f0f4f8;
+        }
+
+        .sidebar {
+            background: linear-gradient(180deg, #0d5c3a, #1a9e5f);
+            min-height: 100vh;
+            width: 240px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            padding: 1.5rem 1rem;
+            z-index: 100;
+        }
+
+            .sidebar .nav-link {
+                color: rgba(255,255,255,0.75);
+                border-radius: 8px;
+                padding: 0.6rem 1rem;
+                margin-bottom: 4px;
+                transition: all 0.2s;
+            }
+
+                .sidebar .nav-link:hover, .sidebar .nav-link.active {
+                    background: rgba(255,255,255,0.15);
+                    color: #fff;
+                }
+
+        .main-content {
+            margin-left: 240px;
+            padding: 2rem;
+        }
+
+        .form-card {
+            border: none;
+            border-radius: 16px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+        }
+
+        .form-control:focus, .form-select:focus {
+            border-color: #1a9e5f;
+            box-shadow: 0 0 0 0.2rem rgba(26,158,95,0.25);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="sidebar">
+        <div class="text-white text-center mb-4">
+            <i class="bi bi-building fs-3"></i>
+            <div class="fw-bold mt-1">Staj Takip</div>
+            <small class="opacity-75">@User.Identity?.Name</small>
+        </div>
+        <nav class="nav flex-column">
+            <a href="/Company/Dashboard" class="nav-link">
+                <i class="bi bi-speedometer2 me-2"></i>Dashboard
+            </a>
+            <a href="/Company/Applications" class="nav-link">
+                <i class="bi bi-list-ul me-2"></i>Başvurular
+            </a>
+            <a href="/Company/MyPosts" class="nav-link">
+                <i class="bi bi-megaphone me-2"></i>İlanlarım
+            </a>
+            <a href="/Company/PostInternship" class="nav-link active">
+                <i class="bi bi-plus-circle me-2"></i>İlan Yayınla
+            </a>
+        </nav>
+        <div class="position-absolute bottom-0 start-0 w-100 p-3">
+            <a href="/Company/Profile" class="nav-link">
+                <i class="bi bi-person-circle me-2"></i>Profilim
+            </a>
+            <a href="/Message/Inbox" class="nav-link">
+                <i class="bi bi-chat-dots me-2"></i>Mesajlar
+            </a>
+            <a href="/Account/Logout" class="nav-link text-white-50">
+                <i class="bi bi-box-arrow-left me-2"></i>Çıkış Yap
+            </a>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <div class="row justify-content-center">
+            <div class="col-lg-7">
+
+                <div class="mb-4">
+                    <a href="/Company/MyPosts" class="text-decoration-none text-muted small">
+                        <i class="bi bi-arrow-left me-1"></i>İlanlarıma dön
+                    </a>
+                    <h4 class="fw-bold mt-2 mb-0">Staj İlanı Yayınla</h4>
+                    <small class="text-muted">Yeni bir staj pozisyonu oluşturun</small>
+                </div>
+
+                @if (TempData["Success"] != null)
+                {
+                    <div class="alert alert-success border-0 rounded-3 py-2 mb-3">
+                        <i class="bi bi-check-circle me-2"></i>@TempData["Success"]
+                    </div>
+                }
+
+                <div class="card form-card">
+                    <div class="card-body p-4">
+                        <form method="post" action="/Company/PostInternship">
+                            @Html.AntiForgeryToken()
+
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold">İlan Başlığı <span class="text-danger">*</span></label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="bi bi-briefcase"></i></span>
+                                    <input type="text" name="title" class="form-control"
+                                           placeholder="Örn: Backend Stajyer" required />
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold">Açıklama <span class="text-danger">*</span></label>
+                                <textarea name="description" class="form-control" rows="4"
+                                          placeholder="Staj pozisyonu hakkında detaylı bilgi..." required></textarea>
+                            </div>
+
+                            <div class="row g-3 mb-3">
+                                <div class="col-6">
+                                    <label class="form-label fw-semibold">Departman</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text"><i class="bi bi-diagram-3"></i></span>
+                                        <input type="text" name="department" class="form-control"
+                                               placeholder="Yazılım Geliştirme" />
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <label class="form-label fw-semibold">Şehir</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text"><i class="bi bi-geo-alt"></i></span>
+                                        <input type="text" name="city" class="form-control" placeholder="İstanbul" />
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row g-3 mb-3">
+                                <div class="col-6">
+                                    <label class="form-label fw-semibold">Başlangıç Tarihi</label>
+                                    <input type="date" name="startDate" class="form-control" />
+                                </div>
+                                <div class="col-6">
+                                    <label class="form-label fw-semibold">Bitiş Tarihi</label>
+                                    <input type="date" name="endDate" class="form-control" />
+                                </div>
+                            </div>
+
+                            <div class="mb-4">
+                                <label class="form-label fw-semibold">Kontenjan</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="bi bi-people"></i></span>
+                                    <input type="number" name="quota" class="form-control"
+                                           value="1" min="1" max="50" />
+                                </div>
+                            </div>
+
+                            <div class="d-flex gap-2">
+                                <button type="submit" class="btn btn-success rounded-pill px-4 fw-semibold">
+                                    <i class="bi bi-megaphone me-2"></i>İlanı Yayınla
+                                </button>
+                                <a href="/Company/MyPosts" class="btn btn-outline-secondary rounded-pill px-4">
+                                    İptal
+                                </a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

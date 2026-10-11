@@ -1,0 +1,213 @@
+﻿@model List<StajTakip.Entities.Concrete.Application>
+@{
+    ViewData["Title"] = "Başvurularım";
+}
+
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Staj Takip — Başvurularım</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet" />
+    <style>
+        body { background: #f0f4f8; }
+        .sidebar {
+            background: linear-gradient(180deg, #1e3a5f, #2e86de);
+            min-height: 100vh; width: 240px;
+            position: fixed; top: 0; left: 0;
+            padding: 1.5rem 1rem; z-index: 100;
+        }
+        .sidebar .nav-link {
+            color: rgba(255,255,255,0.75);
+            border-radius: 8px; padding: 0.6rem 1rem;
+            margin-bottom: 4px; transition: all 0.2s;
+        }
+        .sidebar .nav-link:hover, .sidebar .nav-link.active {
+            background: rgba(255,255,255,0.15); color: #fff;
+        }
+        .main-content { margin-left: 240px; padding: 2rem; }
+        .app-card { border: none; border-radius: 12px; box-shadow: 0 2px 12px rgba(0,0,0,0.07); transition: transform 0.2s; }
+        .app-card:hover { transform: translateY(-2px); }
+        .badge-status { font-size: 0.75rem; padding: 0.4em 0.8em; border-radius: 20px; }
+        .filter-btn { border-radius: 20px; font-size: 0.85rem; }
+    </style>
+</head>
+<body>
+
+<!-- Sidebar -->
+<div class="sidebar">
+    <div class="text-white text-center mb-4">
+        <i class="bi bi-briefcase-fill fs-3"></i>
+        <div class="fw-bold mt-1">Staj Takip</div>
+        <small class="opacity-75">@User.Identity?.Name</small>
+    </div>
+    <nav class="nav flex-column">
+        <a href="/Student/Dashboard" class="nav-link">
+            <i class="bi bi-speedometer2 me-2"></i>Dashboard
+        </a>
+        <a href="/Student/Applications" class="nav-link active">
+            <i class="bi bi-list-ul me-2"></i>Başvurularım
+        </a>
+            <a href="/Student/Internships" class="nav-link">
+                <i class="bi bi-search me-2"></i>Staj İlanları
+            </a>
+            <a href="/Student/AddApplication" class="nav-link active">
+                <i class="bi bi-plus-circle me-2"></i>Manuel Başvuru
+            </a>
+    </nav>
+    <div class="position-absolute bottom-0 start-0 w-100 p-3">
+            <a href="/Student/Profile" class="nav-link">
+                <i class="bi bi-person-circle me-2"></i>Profilim
+            </a>
+            <a href="/Message/Inbox" class="nav-link">
+                <i class="bi bi-chat-dots me-2"></i>Mesajlar
+            </a>
+        <a href="/Account/Logout" class="nav-link text-white-50">
+            <i class="bi bi-box-arrow-left me-2"></i>Çıkış Yap
+        </a>
+    </div>
+</div>
+
+<!-- Ana içerik -->
+<div class="main-content">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h4 class="fw-bold mb-0">Başvurularım</h4>
+            <small class="text-muted">Tüm staj ve iş başvurularınız</small>
+        </div>
+        <a href="/Student/AddApplication" class="btn btn-primary rounded-pill px-4">
+            <i class="bi bi-plus-lg me-1"></i>Yeni Başvuru
+        </a>
+    </div>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success border-0 rounded-3 py-2 mb-3">
+            <i class="bi bi-check-circle me-2"></i>@TempData["Success"]
+        </div>
+    }
+
+    <!-- Filtreler -->
+    <div class="d-flex gap-2 flex-wrap mb-4">
+        <a href="/Student/Applications" class="btn btn-sm filter-btn @(ViewBag.CurrentStatus == null ? "btn-primary" : "btn-outline-secondary")">
+            Tümü
+        </a>
+        <a href="/Student/Applications?status=Planned" class="btn btn-sm filter-btn @(ViewBag.CurrentStatus == "Planned" ? "btn-secondary" : "btn-outline-secondary")">
+            Planlandı
+        </a>
+        <a href="/Student/Applications?status=Sent" class="btn btn-sm filter-btn @(ViewBag.CurrentStatus == "Sent" ? "btn-primary" : "btn-outline-primary")">
+            Gönderildi
+        </a>
+        <a href="/Student/Applications?status=Interview" class="btn btn-sm filter-btn @(ViewBag.CurrentStatus == "Interview" ? "btn-warning" : "btn-outline-warning")">
+            Mülakat
+        </a>
+        <a href="/Student/Applications?status=Accepted" class="btn btn-sm filter-btn @(ViewBag.CurrentStatus == "Accepted" ? "btn-success" : "btn-outline-success")">
+            Kabul
+        </a>
+        <a href="/Student/Applications?status=Rejected" class="btn btn-sm filter-btn @(ViewBag.CurrentStatus == "Rejected" ? "btn-danger" : "btn-outline-danger")">
+            Reddedildi
+        </a>
+    </div>
+
+    <!-- Başvuru kartları -->
+    @if (Model != null && Model.Any())
+    {
+        <div class="row g-3">
+            @foreach (var app in Model)
+            {
+                
+                    var (bg, icon, label) = app.Status switch
+                    {
+                        StajTakip.Entities.Concrete.ApplicationStatus.Planned   => ("secondary", "clock", "Planlandı"),
+                        StajTakip.Entities.Concrete.ApplicationStatus.Sent      => ("primary", "send", "Gönderildi"),
+                        StajTakip.Entities.Concrete.ApplicationStatus.Interview => ("warning", "chat-dots", "Mülakat"),
+                        StajTakip.Entities.Concrete.ApplicationStatus.Offer     => ("info", "envelope-open", "Teklif"),
+                        StajTakip.Entities.Concrete.ApplicationStatus.Accepted  => ("success", "check-circle", "Kabul"),
+                        StajTakip.Entities.Concrete.ApplicationStatus.Rejected  => ("danger", "x-circle", "Reddedildi"),
+                        _ => ("secondary", "question", "-")
+                    };
+                
+                <div class="col-md-6 col-lg-4">
+                    <div class="card app-card h-100">
+                        <div class="card-body p-4">
+                            <div class="d-flex justify-content-between align-items-start mb-3">
+                                <div>
+                                    <h6 class="fw-bold mb-1">@(app.CompanyName ?? app.InternshipPost?.Title ?? "-")</h6>
+                                    <div class="text-muted small">@app.Position</div>
+                                </div>
+                                <span class="badge bg-@bg bg-opacity-10 text-@bg badge-status">
+                                    <i class="bi bi-@icon me-1"></i>@label
+                                </span>
+                            </div>
+
+                            <div class="d-flex gap-3 text-muted small mb-3">
+                                @if (!string.IsNullOrEmpty(app.City))
+                                {
+                                    <span><i class="bi bi-geo-alt me-1"></i>@app.City</span>
+                                }
+                                @if (app.ApplicationDate.HasValue)
+                                {
+                                    <span><i class="bi bi-calendar me-1"></i>@app.ApplicationDate.Value.ToString("dd.MM.yyyy")</span>
+                                }
+                            </div>
+
+                            @{
+                                var (abg, alabel) = app.AdvisorApproval switch
+                                {
+                                    StajTakip.Entities.Concrete.AdvisorApprovalStatus.Pending  => ("warning", "Danışman onayı bekliyor"),
+                                    StajTakip.Entities.Concrete.AdvisorApprovalStatus.Approved => ("success", "Danışman onayladı"),
+                                    StajTakip.Entities.Concrete.AdvisorApprovalStatus.Rejected => ("danger", "Danışman reddetti"),
+                                    _ => ("secondary", "-")
+                                };
+                            }
+                            <div class="mb-3">
+                                <span class="badge bg-@abg bg-opacity-10 text-@abg badge-status">
+                                    <i class="bi bi-person-check me-1"></i>@alabel
+                                </span>
+                            </div>
+
+                            <div class="d-flex gap-2 mt-auto">
+                                <a href="/Student/Detail/@app.Id"
+                                   class="btn btn-sm btn-outline-primary rounded-pill flex-grow-1">
+                                    <i class="bi bi-eye me-1"></i>Detay
+                                </a>
+                                <a href="/Student/EditApplication/@app.Id"
+                                   class="btn btn-sm btn-outline-secondary rounded-pill">
+                                    <i class="bi bi-pencil"></i>
+                                </a>
+                                <form method="post" action="/Student/DeleteApplication/@app.Id"
+                                      onsubmit="return confirm('Başvuruyu silmek istediğinize emin misiniz?')">
+                                    @Html.AntiForgeryToken()
+                                    <button type="submit" class="btn btn-sm btn-outline-danger rounded-pill">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+    else
+    {
+        <div class="card border-0 rounded-3 shadow-sm">
+            <div class="card-body text-center py-5 text-muted">
+                <i class="bi bi-inbox fs-1 d-block mb-3"></i>
+                <h6>Henüz başvuru yok</h6>
+                <p class="small">İlk başvurunuzu ekleyerek takibe başlayın.</p>
+                <a href="/Student/AddApplication" class="btn btn-primary rounded-pill px-4">
+                    <i class="bi bi-plus-lg me-1"></i>Başvuru Ekle
+                </a>
+            </div>
+        </div>
+    }
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

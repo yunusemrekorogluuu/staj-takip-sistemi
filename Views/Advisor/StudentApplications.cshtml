@@ -1,0 +1,189 @@
+﻿@model List<StajTakip.Entities.Concrete.Application>
+@{
+    ViewData["Title"] = "Öğrenci Başvuruları";
+    var student = ViewBag.Student as StajTakip.Entities.Concrete.User;
+}
+
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Staj Takip — Öğrenci Başvuruları</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet" />
+    <style>
+        body {
+            background: #f0f4f8;
+        }
+
+        .sidebar {
+            background: linear-gradient(180deg, #3d1a6e, #6f42c1);
+            min-height: 100vh;
+            width: 240px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            padding: 1.5rem 1rem;
+            z-index: 100;
+        }
+
+            .sidebar .nav-link {
+                color: rgba(255,255,255,0.75);
+                border-radius: 8px;
+                padding: 0.6rem 1rem;
+                margin-bottom: 4px;
+                transition: all 0.2s;
+            }
+
+                .sidebar .nav-link:hover, .sidebar .nav-link.active {
+                    background: rgba(255,255,255,0.15);
+                    color: #fff;
+                }
+
+        .main-content {
+            margin-left: 240px;
+            padding: 2rem;
+        }
+
+        .app-card {
+            border: none;
+            border-radius: 12px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+            transition: transform 0.2s;
+        }
+
+            .app-card:hover {
+                transform: translateY(-2px);
+            }
+
+        .badge-status {
+            font-size: 0.75rem;
+            padding: 0.4em 0.8em;
+            border-radius: 20px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="sidebar">
+        <div class="text-white text-center mb-4">
+            <i class="bi bi-person-badge-fill fs-3"></i>
+            <div class="fw-bold mt-1">Staj Takip</div>
+            <small class="opacity-75">@User.Identity?.Name</small>
+        </div>
+        <nav class="nav flex-column">
+            <a href="/Advisor/Dashboard" class="nav-link">
+                <i class="bi bi-speedometer2 me-2"></i>Dashboard
+            </a>
+            <a href="/Advisor/Students" class="nav-link active">
+                <i class="bi bi-people me-2"></i>Öğrencilerim
+            </a>
+            <a href="/Advisor/PendingApprovals" class="nav-link">
+                <i class="bi bi-hourglass-split me-2"></i>Onay Bekleyenler
+            </a>
+            <a href="/Advisor/Statistics" class="nav-link">
+                <i class="bi bi-bar-chart me-2"></i>İstatistikler
+            </a>
+        </nav>
+        <div class="position-absolute bottom-0 start-0 w-100 p-3">
+            <a href="/Advisor/Profile" class="nav-link">
+                <i class="bi bi-person-circle me-2"></i>Profilim
+            </a>
+            <a href="/Message/Inbox" class="nav-link">
+                <i class="bi bi-chat-dots me-2"></i>Mesajlar
+            </a>
+            <a href="/Account/Logout" class="nav-link text-white-50">
+                <i class="bi bi-box-arrow-left me-2"></i>Çıkış Yap
+            </a>
+        </div>
+    </div>
+
+    <div class="main-content">
+
+        <div class="mb-4">
+            <a href="/Advisor/Students" class="text-decoration-none text-muted small">
+                <i class="bi bi-arrow-left me-1"></i>Öğrencilere dön
+            </a>
+            <h4 class="fw-bold mt-2 mb-0">@(student?.FullName ?? "Öğrenci") — Başvuruları</h4>
+            <small class="text-muted">@(student?.Department ?? "") · @(student?.StudentNumber ?? "")</small>
+        </div>
+
+        @if (Model != null && Model.Any())
+        {
+            <div class="row g-3">
+                @foreach (var app in Model)
+                {
+                    var (bg, label) = app.Status switch
+                    {
+                        StajTakip.Entities.Concrete.ApplicationStatus.Planned => ("secondary", "Planlandı"),
+                        StajTakip.Entities.Concrete.ApplicationStatus.Sent => ("primary", "Gönderildi"),
+                        StajTakip.Entities.Concrete.ApplicationStatus.Interview => ("warning", "Mülakat"),
+                        StajTakip.Entities.Concrete.ApplicationStatus.Offer => ("info", "Teklif"),
+                        StajTakip.Entities.Concrete.ApplicationStatus.Accepted => ("success", "Kabul"),
+                        StajTakip.Entities.Concrete.ApplicationStatus.Rejected => ("danger", "Reddedildi"),
+                        _ => ("secondary", "-")
+                    };
+
+                    var (abg, alabel) = app.AdvisorApproval switch
+                    {
+                        StajTakip.Entities.Concrete.AdvisorApprovalStatus.Pending => ("warning", "Onay Bekliyor"),
+                        StajTakip.Entities.Concrete.AdvisorApprovalStatus.Approved => ("success", "Onaylandı"),
+                        StajTakip.Entities.Concrete.AdvisorApprovalStatus.Rejected => ("danger", "Reddedildi"),
+                        _ => ("secondary", "-")
+                    };
+
+                    <div class="col-md-6 col-lg-4">
+                        <div class="card app-card h-100 p-4">
+                            <div class="d-flex justify-content-between align-items-start mb-3">
+                                <div>
+                                    <h6 class="fw-bold mb-1">@(app.CompanyName ?? app.InternshipPost?.Title ?? "-")</h6>
+                                    <div class="text-muted small">@app.Position</div>
+                                </div>
+                                <span class="badge bg-@bg bg-opacity-10 text-@bg badge-status">@label</span>
+                            </div>
+
+                            <div class="d-flex gap-3 text-muted small mb-3">
+                                @if (!string.IsNullOrEmpty(app.City))
+                                {
+                                    <span><i class="bi bi-geo-alt me-1"></i>@app.City</span>
+                                }
+                                @if (app.ApplicationDate.HasValue)
+                                {
+                                    <span><i class="bi bi-calendar me-1"></i>@app.ApplicationDate.Value.ToString("dd.MM.yyyy")</span>
+                                }
+                            </div>
+
+                            <div class="mb-3">
+                                <span class="badge bg-@abg bg-opacity-10 text-@abg badge-status">
+                                    <i class="bi bi-person-check me-1"></i>@alabel
+                                </span>
+                            </div>
+
+                            <div class="d-flex gap-2 mt-auto">
+                                <a href="/Advisor/ApplicationDetail/@app.Id"
+                                   class="btn btn-sm btn-outline-primary rounded-pill flex-grow-1">
+                                    <i class="bi bi-eye me-1"></i>Detay & Onayla
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+        else
+        {
+            <div class="card border-0 rounded-3 shadow-sm">
+                <div class="card-body text-center py-5 text-muted">
+                    <i class="bi bi-inbox fs-1 d-block mb-3"></i>
+                    <h6>Henüz başvuru yok</h6>
+                    <p class="small">Bu öğrencinin henüz başvurusu bulunmuyor.</p>
+                </div>
+            </div>
+        }
+
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

@@ -1,0 +1,796 @@
+﻿@* @{
+    ViewData["Title"] = "Kayıt Ol";
+    Layout = null;
+}
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Staj Takip — Kayıt Ol</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet" />
+    <style>
+        body {
+            background: #f0f4f8;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            padding: 2rem 0;
+        }
+
+        .register-card {
+            border: none;
+            border-radius: 16px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.10);
+        }
+
+        .register-header {
+            background: linear-gradient(135deg, #1e3a5f, #2e86de);
+            border-radius: 16px 16px 0 0;
+        }
+
+        .btn-register {
+            background: linear-gradient(135deg, #1e3a5f, #2e86de);
+            border: none;
+            border-radius: 8px;
+        }
+
+            .btn-register:hover {
+                opacity: 0.9;
+            }
+
+        .form-control:focus, .form-select:focus {
+            border-color: #2e86de;
+            box-shadow: 0 0 0 0.2rem rgba(46,134,222,0.25);
+        }
+
+        .role-section {
+            display: none;
+        }
+
+            .role-section.active {
+                display: block;
+            }
+
+        .role-card {
+            border: 2px solid #dee2e6;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+            .role-card:hover {
+                border-color: #2e86de;
+                background: #f0f7ff;
+            }
+
+            .role-card.selected {
+                border-color: #2e86de;
+                background: #e8f4fd;
+            }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-7 col-lg-6">
+                <div class="card register-card">
+                    <div class="register-header text-white text-center py-4 px-4">
+                        <i class="bi bi-person-plus-fill fs-1"></i>
+                        <h4 class="mt-2 mb-0 fw-bold">Hesap Oluştur</h4>
+                        <small class="opacity-75">Rolünüzü seçerek kayıt olun</small>
+                    </div>
+                    <div class="card-body p-4">
+
+                        @if (ViewBag.Error != null)
+                        {
+                            <div class="alert alert-danger py-2 small">
+                                <i class="bi bi-exclamation-circle me-1"></i>@ViewBag.Error
+                            </div>
+                        }
+
+                        <form method="post" action="/Account/Register">
+
+                            <!-- Temel bilgiler -->
+                            <div class="mb-3">
+                                <label class="form-label small fw-semibold">Ad Soyad</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="bi bi-person"></i></span>
+                                    <input type="text" name="fullName" class="form-control"
+                                           placeholder="Adınız Soyadınız" required />
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label small fw-semibold">E-posta</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="bi bi-envelope"></i></span>
+                                    <input type="email" name="email" class="form-control"
+                                           placeholder="ornek@email.com" required />
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label small fw-semibold">Şifre</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="bi bi-lock"></i></span>
+                                    <input type="password" name="password" id="password" class="form-control"
+                                           placeholder="En az 6 karakter" required
+                                           minlength="6" oninput="checkPassword(this.value)" />
+                                </div>
+                                <div id="passwordStrength" class="mt-1"></div>
+                                <div class="form-text text-muted small">
+                                    En az 6 karakter, 1 büyük harf ve 1 rakam içermelidir.
+                                </div>
+                            </div>
+
+                            <!-- Rol seçimi -->
+                            <div class="mb-3">
+                                <label class="form-label small fw-semibold">Rol Seçin</label>
+                                <input type="hidden" name="role" id="selectedRole" required />
+                                <div class="row g-2">
+                                    <div class="col-4">
+                                        <div class="role-card p-3 text-center" onclick="selectRole('Student', this)">
+                                            <i class="bi bi-mortarboard fs-4 text-primary"></i>
+                                            <div class="small fw-semibold mt-1">Öğrenci</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-4">
+                                        <div class="role-card p-3 text-center" onclick="selectRole('Advisor', this)">
+                                            <i class="bi bi-person-badge fs-4 text-purple" style="color:#6f42c1"></i>
+                                            <div class="small fw-semibold mt-1">Akademisyen</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-4">
+                                        <div class="role-card p-3 text-center" onclick="selectRole('Company', this)">
+                                            <i class="bi bi-building fs-4 text-success"></i>
+                                            <div class="small fw-semibold mt-1">Şirket</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Öğrenci alanları -->
+                            <div id="studentFields" class="role-section">
+                                <div class="mb-3">
+                                    <label class="form-label small fw-semibold">Öğrenci Numarası</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text"><i class="bi bi-hash"></i></span>
+                                        <input type="text" name="studentNumber" class="form-control"
+                                               placeholder="20210001" />
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label small fw-semibold">Bölüm</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text"><i class="bi bi-book"></i></span>
+                                        <select name="department" class="form-select">
+                                            <option value="">— Bölüm seçin —</option>
+                                            <option value="Bilgisayar Mühendisliği">Bilgisayar Mühendisliği</option>
+                                            <option value="Yazılım Mühendisliği">Yazılım Mühendisliği</option>
+                                            <option value="Bilgisayar Teknolojisi">Bilgisayar Teknolojisi</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label small fw-semibold">Danışman Akademisyen</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text"><i class="bi bi-person-badge"></i></span>
+                                        <select name="advisorId" class="form-select" id="advisorSelect">
+                                            <option value="">— Önce bölüm seçin —</option>
+                                            @if (ViewBag.Advisors != null)
+                                            {
+                                                foreach (var advisor in ViewBag.Advisors)
+                                                {
+                                                    <option value="@advisor.Id"
+                                                            data-department="@(advisor.Department ?? "")">
+                                                        @advisor.FullName — @(advisor.Department ?? "")
+                                                    </option>
+                                                }
+                                            }
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Akademisyen alanları -->
+                            <div id="advisorFields" class="role-section">
+                                <div class="mb-3">
+                                    <label class="form-label small fw-semibold">Bölüm</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text"><i class="bi bi-book"></i></span>
+                                        <select name="department" class="form-select">
+                                            <option value="">— Bölüm seçin —</option>
+                                            <option value="Bilgisayar Mühendisliği">Bilgisayar Mühendisliği</option>
+                                            <option value="Yazılım Mühendisliği">Yazılım Mühendisliği</option>
+                                            <option value="Bilgisayar Teknolojisi">Bilgisayar Teknolojisi</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Şirket alanları -->
+                            <div id="companyFields" class="role-section">
+                                <div class="mb-3">
+                                    <label class="form-label small fw-semibold">Şirket Adı</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text"><i class="bi bi-building"></i></span>
+                                        <input type="text" name="companyName" class="form-control"
+                                               placeholder="Şirket A.Ş." />
+                                    </div>
+                                </div>
+                                <div class="row g-2">
+                                    <div class="col-6">
+                                        <label class="form-label small fw-semibold">Sektör</label>
+                                        <input type="text" name="companySector" class="form-control"
+                                               placeholder="Yazılım" />
+                                    </div>
+                                    <div class="col-6">
+                                        <label class="form-label small fw-semibold">Şehir</label>
+                                        <input type="text" name="companyCity" class="form-control"
+                                               placeholder="İstanbul" />
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="mt-4">
+                                <button type="submit" class="btn btn-register btn-primary w-100 py-2 fw-semibold text-white">
+                                    <i class="bi bi-person-check me-2"></i>Kayıt Ol
+                                </button>
+                            </div>
+                        </form>
+
+                        <hr class="my-3" />
+                        <div class="text-center small text-muted">
+                            Zaten hesabınız var mı?
+                            <a href="/Account/Login" class="text-decoration-none fw-semibold">Giriş Yap</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function selectRole(role, el) {
+            document.querySelectorAll('.role-card').forEach(c => c.classList.remove('selected'));
+            el.classList.add('selected');
+            document.getElementById('selectedRole').value = role;
+
+            document.getElementById('studentFields').classList.remove('active');
+            document.getElementById('advisorFields').classList.remove('active');
+            document.getElementById('companyFields').classList.remove('active');
+
+            if (role === 'Student') document.getElementById('studentFields').classList.add('active');
+            if (role === 'Advisor') document.getElementById('advisorFields').classList.add('active');
+            if (role === 'Company') document.getElementById('companyFields').classList.add('active');
+        }
+            
+            function checkPassword(value) {
+
+            const div = document.getElementById('passwordStrength');
+            if (!value) { div.innerHTML = ''; return; }
+
+            const hasUpper  = /[A-ZÇĞİÖŞÜ]/.test(value);
+            const hasDigit  = /[0-9]/.test(value);
+            const hasLength = value.length >= 6;
+
+            let strength = 0;
+            if (hasLength) strength++;
+            if (hasUpper)  strength++;
+            if (hasDigit)  strength++;
+
+            const messages = [];
+            if (!hasUpper)  messages.push('En az 1 büyük harf');
+            if (!hasLength) messages.push('En az 6 karakter');
+            if (!hasDigit)  messages.push('En az 1 rakam');
+
+            if (strength === 3) {
+                div.innerHTML = '<small class="text-success"><i class="bi bi-check-circle me-1"></i>Şifre güçlü</small>';
+            } else {
+                div.innerHTML = '<small class="text-danger"><i class="bi bi-x-circle me-1"></i>Eksik: ' + messages.join(', ') + '</small>';
+            }
+        }
+    </script>
+    
+</body>
+</html> *@
+
+@{
+    ViewData["Title"] = "Kayıt Ol";
+    Layout = null;
+}
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Staj Takip — Kayıt Ol</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet" />
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #0f1923;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Segoe UI', sans-serif;
+            padding: 2rem 0;
+        }
+
+        .register-wrapper {
+            width: 100%;
+            max-width: 700px;
+            padding: 2rem;
+        }
+
+        .system-title {
+            text-align: center;
+            color: #fff;
+            font-size: 1.4rem;
+            font-weight: 700;
+            margin-bottom: 0.3rem;
+            letter-spacing: 1px;
+        }
+
+        .system-subtitle {
+            text-align: center;
+            color: rgba(255,255,255,0.4);
+            font-size: 0.85rem;
+            margin-bottom: 2.5rem;
+        }
+
+        .register-form-box {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 20px;
+            padding: 2rem;
+            backdrop-filter: blur(10px);
+        }
+
+        .form-label {
+            color: rgba(255,255,255,0.6);
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 0.4rem;
+        }
+
+        .input-group-text {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-right: none;
+            color: rgba(255,255,255,0.4);
+        }
+
+        .form-control, .form-select {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            color: #fff;
+        }
+
+        .form-control {
+            border-left: none;
+        }
+
+            .form-control::placeholder {
+                color: rgba(255,255,255,0.2);
+            }
+
+            .form-control:focus, .form-select:focus {
+                background: rgba(255,255,255,0.08);
+                color: #fff;
+                box-shadow: none;
+                border-color: var(--accent);
+            }
+
+        .form-select option {
+            background: #1a2535;
+            color: #fff;
+        }
+
+        .role-cards {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 0.75rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .role-card {
+            border-radius: 12px;
+            padding: 1rem 0.75rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+
+            .role-card.student {
+                background: rgba(46,134,222,0.1);
+                border-color: rgba(46,134,222,0.2);
+            }
+
+            .role-card.advisor {
+                background: rgba(111,66,193,0.1);
+                border-color: rgba(111,66,193,0.2);
+            }
+
+            .role-card.company {
+                background: rgba(26,158,95,0.1);
+                border-color: rgba(26,158,95,0.2);
+            }
+
+            .role-card.student:hover, .role-card.student.active {
+                border-color: #2e86de;
+                background: rgba(46,134,222,0.2);
+                transform: translateY(-3px);
+                box-shadow: 0 6px 24px rgba(46,134,222,0.3);
+            }
+
+            .role-card.advisor:hover, .role-card.advisor.active {
+                border-color: #6f42c1;
+                background: rgba(111,66,193,0.2);
+                transform: translateY(-3px);
+                box-shadow: 0 6px 24px rgba(111,66,193,0.3);
+            }
+
+            .role-card.company:hover, .role-card.company.active {
+                border-color: #1a9e5f;
+                background: rgba(26,158,95,0.2);
+                transform: translateY(-3px);
+                box-shadow: 0 6px 24px rgba(26,158,95,0.3);
+            }
+
+        .role-icon {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+            display: block;
+        }
+
+        .role-card.student .role-icon {
+            color: #2e86de;
+        }
+
+        .role-card.advisor .role-icon {
+            color: #6f42c1;
+        }
+
+        .role-card.company .role-icon {
+            color: #1a9e5f;
+        }
+
+        .role-name {
+            color: #fff;
+            font-size: 0.9rem;
+            font-weight: 600;
+            display: block;
+            margin-bottom: 0.2rem;
+        }
+
+        .role-desc {
+            color: rgba(255,255,255,0.4);
+            font-size: 0.72rem;
+        }
+
+        .role-section {
+            display: none;
+        }
+
+            .role-section.active {
+                display: block;
+            }
+
+        .section-divider {
+            border-top: 1px solid rgba(255,255,255,0.1);
+            margin: 1.5rem 0;
+        }
+
+        .section-label {
+            color: rgba(255,255,255,0.4);
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 1rem;
+        }
+
+        .btn-register {
+            border: none;
+            border-radius: 10px;
+            padding: 0.75rem;
+            font-weight: 600;
+            font-size: 0.95rem;
+            width: 100%;
+            color: #fff;
+            background: var(--accent-grad);
+            transition: opacity 0.2s, transform 0.2s;
+            margin-top: 0.5rem;
+        }
+
+            .btn-register:hover {
+                opacity: 0.9;
+                transform: translateY(-1px);
+                color: #fff;
+            }
+
+        .login-link {
+            text-align: center;
+            color: rgba(255,255,255,0.4);
+            font-size: 0.85rem;
+            margin-top: 1.2rem;
+        }
+
+            .login-link a {
+                color: var(--accent);
+                text-decoration: none;
+                font-weight: 600;
+            }
+
+        .alert {
+            background: rgba(220,53,69,0.15);
+            border: 1px solid rgba(220,53,69,0.3);
+            color: #ff6b6b;
+            border-radius: 10px;
+            font-size: 0.85rem;
+        }
+
+        .password-hint {
+            font-size: 0.75rem;
+            margin-top: 0.3rem;
+            min-height: 1.2rem;
+        }
+
+        :root {
+            --accent: #2e86de;
+            --accent-grad: linear-gradient(135deg, #1e3a5f, #2e86de);
+        }
+    </style>
+</head>
+<body>
+    <div class="register-wrapper">
+
+        <div class="system-title">
+            <i class="bi bi-briefcase-fill me-2"></i>STAJ TAKİP SİSTEMİ
+        </div>
+        <div class="system-subtitle">Rolünüzü seçerek hesap oluşturun</div>
+
+        <div class="register-form-box">
+
+            @if (ViewBag.Error != null)
+            {
+                <div class="alert mb-3 py-2">
+                    <i class="bi bi-exclamation-circle me-1"></i>@ViewBag.Error
+                </div>
+            }
+
+            <form method="post" action="/Account/Register">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="role" id="selectedRole" value="Student" />
+
+                <!-- Rol seçimi -->
+                <div class="role-cards">
+                    <div class="role-card student active" onclick="selectRole('Student', this)">
+                        <i class="bi bi-mortarboard-fill role-icon"></i>
+                        <span class="role-name">Öğrenci</span>
+                        <span class="role-desc">Başvurularını takip et</span>
+                    </div>
+                    <div class="role-card advisor" onclick="selectRole('Advisor', this)">
+                        <i class="bi bi-person-badge-fill role-icon"></i>
+                        <span class="role-name">Akademisyen</span>
+                        <span class="role-desc">Öğrencilerini yönet</span>
+                    </div>
+                    <div class="role-card company" onclick="selectRole('Company', this)">
+                        <i class="bi bi-building role-icon"></i>
+                        <span class="role-name">Staj Şirketi</span>
+                        <span class="role-desc">Başvuruları değerlendir</span>
+                    </div>
+                </div>
+
+                <!-- Temel bilgiler -->
+                <div class="section-label">Temel Bilgiler</div>
+
+                <div class="mb-3">
+                    <label class="form-label">Ad Soyad</label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="bi bi-person"></i></span>
+                        <input type="text" name="fullName" class="form-control"
+                               placeholder="Adınız Soyadınız" required minlength="3" />
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">E-posta</label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="bi bi-envelope"></i></span>
+                        <input type="email" name="email" class="form-control"
+                               placeholder="ornek@email.com" required />
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Şifre</label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="bi bi-lock"></i></span>
+                        <input type="password" name="password" id="password" class="form-control"
+                               placeholder="En az 6 karakter" required minlength="6"
+                               oninput="checkPassword(this.value)" />
+                        <span class="input-group-text" style="border-left:none;cursor:pointer"
+                              onclick="togglePass(this)">
+                            <i class="bi bi-eye"></i>
+                        </span>
+                    </div>
+                    <div id="passwordStrength" class="password-hint"></div>
+                </div>
+
+                <!-- Öğrenci alanları -->
+                <div id="studentFields" class="role-section active">
+                    <div class="section-divider"></div>
+                    <div class="section-label">Öğrenci Bilgileri</div>
+                    <div class="row g-3 mb-3">
+                        <div class="col-6">
+                            <label class="form-label">Öğrenci Numarası</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="bi bi-hash"></i></span>
+                                <input type="text" name="studentNumber" class="form-control"
+                                       placeholder="20210001" />
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label">Bölüm</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="bi bi-book"></i></span>
+                                <select name="department" id="studentDepartment" class="form-select">
+                                    <option value="">— Seçin —</option>
+                                    <option value="Bilgisayar Mühendisliği">Bilgisayar Mühendisliği</option>
+                                    <option value="Yazılım Mühendisliği">Yazılım Mühendisliği</option>
+                                    <option value="Bilgisayar Teknolojisi">Bilgisayar Teknolojisi</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Danışman Akademisyen</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-person-badge"></i></span>
+                            <select name="advisorId" class="form-select" id="advisorSelect">
+                                <option value="">— Danışman seçin —</option>
+                                @if (ViewBag.Advisors != null)
+                                {
+                                    foreach (var advisor in ViewBag.Advisors)
+                                    {
+                                        <option value="@advisor.Id">@advisor.FullName</option>
+                                    }
+                                }
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Akademisyen alanları -->
+                <div id="advisorFields" class="role-section">
+                    <div class="section-divider"></div>
+                    <div class="section-label">Akademisyen Bilgileri</div>
+                    <div class="mb-3">
+                        <label class="form-label">Bölüm</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-book"></i></span>
+                            <select name="department" class="form-select">
+                                <option value="">— Bölüm seçin —</option>
+                                <option value="Bilgisayar Mühendisliği">Bilgisayar Mühendisliği</option>
+                                <option value="Yazılım Mühendisliği">Yazılım Mühendisliği</option>
+                                <option value="Bilgisayar Teknolojisi">Bilgisayar Teknolojisi</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Şirket alanları -->
+                <div id="companyFields" class="role-section">
+                    <div class="section-divider"></div>
+                    <div class="section-label">Şirket Bilgileri</div>
+                    <div class="mb-3">
+                        <label class="form-label">Şirket Adı</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-building"></i></span>
+                            <input type="text" name="companyName" class="form-control"
+                                   placeholder="Şirket A.Ş." />
+                        </div>
+                    </div>
+                    <div class="row g-3 mb-3">
+                        <div class="col-6">
+                            <label class="form-label">Sektör</label>
+                            <input type="text" name="companySector" class="form-control"
+                                   placeholder="Yazılım" />
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label">Şehir</label>
+                            <input type="text" name="companyCity" class="form-control"
+                                   placeholder="İstanbul" />
+                        </div>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn-register">
+                    <i class="bi bi-person-check me-2"></i>Hesap Oluştur
+                </button>
+            </form>
+
+            <div class="login-link">
+                Zaten hesabınız var mı?
+                <a href="/Account/Login">Giriş Yap</a>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        const accents = {
+            Student: { color: '#2e86de', grad: 'linear-gradient(135deg,#1e3a5f,#2e86de)' },
+            Advisor: { color: '#6f42c1', grad: 'linear-gradient(135deg,#3d1a6e,#6f42c1)' },
+            Company: { color: '#1a9e5f', grad: 'linear-gradient(135deg,#0d5c3a,#1a9e5f)' }
+        };
+
+        function selectRole(role, el) {
+            document.querySelectorAll('.role-card').forEach(c => c.classList.remove('active'));
+            el.classList.add('active');
+            document.getElementById('selectedRole').value = role;
+
+            document.getElementById('studentFields').classList.remove('active');
+            document.getElementById('advisorFields').classList.remove('active');
+            document.getElementById('companyFields').classList.remove('active');
+
+            if (role === 'Student') document.getElementById('studentFields').classList.add('active');
+            if (role === 'Advisor') document.getElementById('advisorFields').classList.add('active');
+            if (role === 'Company') document.getElementById('companyFields').classList.add('active');
+
+            const a = accents[role];
+            document.documentElement.style.setProperty('--accent', a.color);
+            document.documentElement.style.setProperty('--accent-grad', a.grad);
+        }
+
+        function togglePass(btn) {
+            const input = btn.previousElementSibling;
+            const icon  = btn.querySelector('i');
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.className = 'bi bi-eye-slash';
+            } else {
+                input.type = 'password';
+                icon.className = 'bi bi-eye';
+            }
+        }
+
+        function checkPassword(value) {
+            const div = document.getElementById('passwordStrength');
+            if (!value) { div.innerHTML = ''; return; }
+
+            const hasUpper  = /[A-ZÇĞİÖŞÜ]/.test(value);
+            const hasDigit  = /[0-9]/.test(value);
+            const hasLength = value.length >= 6;
+
+            let strength = 0;
+            if (hasLength) strength++;
+            if (hasUpper)  strength++;
+            if (hasDigit)  strength++;
+
+            const messages = [];
+            if (!hasLength) messages.push('En az 6 karakter');
+            if (!hasUpper)  messages.push('En az 1 büyük harf');
+            if (!hasDigit)  messages.push('En az 1 rakam');
+
+            if (strength === 3) {
+                div.innerHTML = '<small style="color:#6bffb8"><i class="bi bi-check-circle me-1"></i>Şifre güçlü</small>';
+            } else {
+                div.innerHTML = '<small style="color:#ff6b6b"><i class="bi bi-x-circle me-1"></i>Eksik: ' + messages.join(', ') + '</small>';
+            }
+        }
+    </script>
+</body>
+</html>

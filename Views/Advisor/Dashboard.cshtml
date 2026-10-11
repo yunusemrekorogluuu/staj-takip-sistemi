@@ -1,0 +1,221 @@
+﻿@model List<StajTakip.Entities.Concrete.User>
+@{
+    ViewData["Title"] = "Akademisyen Dashboard";
+    var notifs = ViewBag.Notifs as List<StajTakip.Entities.Concrete.Notification>;
+}
+
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Staj Takip — Akademisyen</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet" />
+    <style>
+        body {
+            background: #f0f4f8;
+        }
+
+        .sidebar {
+            background: linear-gradient(180deg, #3d1a6e, #6f42c1);
+            min-height: 100vh;
+            width: 240px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            padding: 1.5rem 1rem;
+            z-index: 100;
+        }
+
+            .sidebar .nav-link {
+                color: rgba(255,255,255,0.75);
+                border-radius: 8px;
+                padding: 0.6rem 1rem;
+                margin-bottom: 4px;
+                transition: all 0.2s;
+            }
+
+                .sidebar .nav-link:hover, .sidebar .nav-link.active {
+                    background: rgba(255,255,255,0.15);
+                    color: #fff;
+                }
+
+        .main-content {
+            margin-left: 240px;
+            padding: 2rem;
+        }
+
+        .stat-card {
+            border: none;
+            border-radius: 12px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+        }
+
+        .stat-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.4rem;
+        }
+
+        .student-card {
+            border: none;
+            border-radius: 12px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+            transition: transform 0.2s;
+        }
+
+            .student-card:hover {
+                transform: translateY(-2px);
+            }
+    </style>
+</head>
+<body>
+
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="text-white text-center mb-4">
+            <i class="bi bi-person-badge-fill fs-3"></i>
+            <div class="fw-bold mt-1">Staj Takip</div>
+            <small class="opacity-75">@User.Identity?.Name</small>
+        </div>
+        <nav class="nav flex-column">
+            <a href="/Advisor/Dashboard" class="nav-link active">
+                <i class="bi bi-speedometer2 me-2"></i>Dashboard
+            </a>
+            <a href="/Advisor/Students" class="nav-link">
+                <i class="bi bi-people me-2"></i>Öğrencilerim
+            </a>
+            <a href="/Advisor/PendingApprovals" class="nav-link">
+                <i class="bi bi-hourglass-split me-2"></i>Onay Bekleyenler
+                @if (ViewBag.PendingCount > 0)
+                {
+                    <span class="badge bg-danger ms-1">@ViewBag.PendingCount</span>
+                }
+            </a>
+            <a href="/Advisor/Statistics" class="nav-link">
+                <i class="bi bi-bar-chart me-2"></i>İstatistikler
+            </a>
+        </nav>
+        <div class="position-absolute bottom-0 start-0 w-100 p-3">
+            <a href="/Advisor/Profile" class="nav-link">
+                <i class="bi bi-person-circle me-2"></i>Profilim
+            </a>
+            <a href="/Message/Inbox" class="nav-link">
+                <i class="bi bi-chat-dots me-2"></i>Mesajlar
+                @if (ViewBag.UnreadMessages != null && ViewBag.UnreadMessages > 0)
+                {
+                    <span class="badge bg-danger ms-1">@ViewBag.UnreadMessages</span>
+                }
+            </a>
+            <a href="/Account/Logout" class="nav-link text-white-50">
+                <i class="bi bi-box-arrow-left me-2"></i>Çıkış Yap
+            </a>
+        </div>
+    </div>
+
+    <!-- Ana içerik -->
+    <div class="main-content">
+
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h4 class="fw-bold mb-0">Hoş geldiniz 👋</h4>
+                <small class="text-muted">Öğrencilerinizin staj süreçlerini takip edin</small>
+            </div>
+        </div>
+
+        @if (notifs != null && notifs.Any())
+        {
+            <div class="alert alert-info border-0 rounded-3 mb-4 py-2">
+                <i class="bi bi-bell-fill me-2"></i>
+                <strong>@notifs.Count</strong> okunmamış bildiriminiz var.
+            </div>
+        }
+
+        <!-- İstatistik kartları -->
+        <div class="row g-3 mb-4">
+            <div class="col-6 col-lg-3">
+                <div class="card stat-card p-3">
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="stat-icon bg-purple bg-opacity-10" style="background:#f3eeff">
+                            <i class="bi bi-people" style="color:#6f42c1"></i>
+                        </div>
+                        <div>
+                            <div class="fw-bold fs-4">@ViewBag.StudentCount</div>
+                            <div class="small text-muted">Öğrencim</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-6 col-lg-3">
+                <div class="card stat-card p-3">
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="stat-icon bg-warning bg-opacity-10">
+                            <i class="bi bi-hourglass-split text-warning"></i>
+                        </div>
+                        <div>
+                            <div class="fw-bold fs-4">@ViewBag.PendingCount</div>
+                            <div class="small text-muted">Onay Bekleyen</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Öğrenci listesi -->
+        <div class="card stat-card">
+            <div class="card-header bg-white border-0 pt-3 pb-0 px-4">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h6 class="fw-bold mb-0">Öğrencilerim</h6>
+                    <a href="/Advisor/Students" class="btn btn-sm btn-outline-primary rounded-pill">Tümünü Gör</a>
+                </div>
+            </div>
+            <div class="card-body px-4">
+                @if (Model != null && Model.Any())
+                {
+                    <div class="row g-3">
+                        @foreach (var student in Model.Take(6))
+                        {
+                            <div class="col-md-6 col-lg-4">
+                                <div class="card student-card p-3">
+                                    <div class="d-flex align-items-center gap-3 mb-2">
+                                        <div class="rounded-circle d-flex align-items-center justify-content-center fw-bold text-white"
+                                             style="width:40px;height:40px;background:#6f42c1;font-size:1rem">
+                                            @student.FullName[0]
+                                        </div>
+                                        <div>
+                                            <div class="fw-semibold small">@student.FullName</div>
+                                            <div class="text-muted" style="font-size:0.75rem">@student.StudentNumber</div>
+                                        </div>
+                                    </div>
+                                    <div class="text-muted small mb-3">
+                                        <i class="bi bi-book me-1"></i>@(student.Department ?? "-")
+                                    </div>
+                                    @* <a href="/Advisor/PendingApprovals"
+                                       class="btn btn-sm btn-outline-primary rounded-pill w-100">
+                                        <i class="bi bi-hourglass-split me-1"></i>Onay Bekleyenleri Gör
+                                    </a> *@
+                                </div>
+                            </div>
+                        }
+                    </div>
+                }
+                else
+                {
+                    <div class="text-center py-5 text-muted">
+                        <i class="bi bi-people fs-1 d-block mb-2"></i>
+                        Henüz öğrenciniz yok.
+                    </div>
+                }
+            </div>
+        </div>
+
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

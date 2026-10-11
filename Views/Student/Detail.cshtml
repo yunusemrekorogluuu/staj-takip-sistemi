@@ -1,0 +1,260 @@
+﻿@model StajTakip.Entities.Concrete.Application
+@{
+    ViewData["Title"] = "Başvuru Detay";
+}
+
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Staj Takip — Başvuru Detay</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet" />
+    <style>
+        body {
+            background: #f0f4f8;
+        }
+
+        .sidebar {
+            background: linear-gradient(180deg, #1e3a5f, #2e86de);
+            min-height: 100vh;
+            width: 240px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            padding: 1.5rem 1rem;
+            z-index: 100;
+        }
+
+            .sidebar .nav-link {
+                color: rgba(255,255,255,0.75);
+                border-radius: 8px;
+                padding: 0.6rem 1rem;
+                margin-bottom: 4px;
+                transition: all 0.2s;
+            }
+
+                .sidebar .nav-link:hover, .sidebar .nav-link.active {
+                    background: rgba(255,255,255,0.15);
+                    color: #fff;
+                }
+
+        .main-content {
+            margin-left: 240px;
+            padding: 2rem;
+        }
+
+        .detail-card {
+            border: none;
+            border-radius: 12px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+        }
+
+        .timeline-item {
+            border-left: 2px solid #2e86de;
+            padding-left: 1rem;
+            margin-bottom: 1rem;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="sidebar">
+        <div class="text-white text-center mb-4">
+            <i class="bi bi-briefcase-fill fs-3"></i>
+            <div class="fw-bold mt-1">Staj Takip</div>
+            <small class="opacity-75">@User.Identity?.Name</small>
+        </div>
+        <nav class="nav flex-column">
+            <a href="/Student/Dashboard" class="nav-link">
+                <i class="bi bi-speedometer2 me-2"></i>Dashboard
+            </a>
+            <a href="/Student/Applications" class="nav-link active">
+                <i class="bi bi-list-ul me-2"></i>Başvurularım
+            </a>
+            <a href="/Student/Internships" class="nav-link">
+                <i class="bi bi-search me-2"></i>Staj İlanları
+            </a>
+            <a href="/Student/AddApplication" class="nav-link active">
+                <i class="bi bi-plus-circle me-2"></i>Manuel Başvuru
+            </a>
+        </nav>
+        <div class="position-absolute bottom-0 start-0 w-100 p-3">
+            <a href="/Student/Profile" class="nav-link">
+                <i class="bi bi-person-circle me-2"></i>Profilim
+            </a>
+            <a href="/Message/Inbox" class="nav-link">
+                <i class="bi bi-chat-dots me-2"></i>Mesajlar
+            </a>
+            <a href="/Account/Logout" class="nav-link text-white-50">
+                <i class="bi bi-box-arrow-left me-2"></i>Çıkış Yap
+            </a>
+        </div>
+    </div>
+
+    <div class="main-content">
+
+        <div class="mb-4">
+            <a href="/Student/Applications" class="text-decoration-none text-muted small">
+                <i class="bi bi-arrow-left me-1"></i>Başvurularıma dön
+            </a>
+            <h4 class="fw-bold mt-2 mb-0">Başvuru Detayı</h4>
+        </div>
+
+        <div class="row g-4">
+
+            <!-- Sol -->
+            <div class="col-lg-8">
+                <div class="card detail-card p-4 mb-4">
+                    <h6 class="fw-bold mb-3"><i class="bi bi-briefcase me-2"></i>Başvuru Bilgileri</h6>
+                    <div class="row g-3">
+                        <div class="col-6">
+                            <div class="text-muted small">Şirket</div>
+                            <div class="fw-semibold">@(Model.CompanyName ?? Model.InternshipPost?.Title ?? "-")</div>
+                        </div>
+                        <div class="col-6">
+                            <div class="text-muted small">Pozisyon</div>
+                            <div class="fw-semibold">@Model.Position</div>
+                        </div>
+                        <div class="col-6">
+                            <div class="text-muted small">Şehir</div>
+                            <div class="fw-semibold">@(Model.City ?? "-")</div>
+                        </div>
+                        <div class="col-6">
+                            <div class="text-muted small">Başvuru Tarihi</div>
+                            <div class="fw-semibold">@(Model.ApplicationDate?.ToString("dd.MM.yyyy") ?? "-")</div>
+                        </div>
+                        <div class="col-6">
+                            <div class="text-muted small">Durum</div>
+                            @{
+                                var (bg, label) = Model.Status switch
+                                {
+                                    StajTakip.Entities.Concrete.ApplicationStatus.Planned => ("secondary", "Planlandı"),
+                                    StajTakip.Entities.Concrete.ApplicationStatus.Sent => ("primary", "Gönderildi"),
+                                    StajTakip.Entities.Concrete.ApplicationStatus.Interview => ("warning", "Mülakat"),
+                                    StajTakip.Entities.Concrete.ApplicationStatus.Offer => ("info", "Teklif"),
+                                    StajTakip.Entities.Concrete.ApplicationStatus.Accepted => ("success", "Kabul"),
+                                    StajTakip.Entities.Concrete.ApplicationStatus.Rejected => ("danger", "Reddedildi"),
+                                    _ => ("secondary", "-")
+                                };
+                            }
+                            <span class="badge bg-@bg bg-opacity-10 text-@bg" style="font-size:0.8rem">@label</span>
+                        </div>
+                        <div class="col-6">
+                            <div class="text-muted small">Danışman Onayı</div>
+                            @{
+                                var (abg, alabel) = Model.AdvisorApproval switch
+                                {
+                                    StajTakip.Entities.Concrete.AdvisorApprovalStatus.Pending => ("warning", "Bekliyor"),
+                                    StajTakip.Entities.Concrete.AdvisorApprovalStatus.Approved => ("success", "Onaylandı"),
+                                    StajTakip.Entities.Concrete.AdvisorApprovalStatus.Rejected => ("danger", "Reddedildi"),
+                                    _ => ("secondary", "-")
+                                };
+                            }
+                            <span class="badge bg-@abg bg-opacity-10 text-@abg" style="font-size:0.8rem">@alabel</span>
+                        </div>
+                        @if (!string.IsNullOrEmpty(Model.Notes))
+                        {
+                            <div class="col-12">
+                                <div class="text-muted small">Notlar</div>
+                                <div class="fw-semibold">@Model.Notes</div>
+                            </div>
+                        }
+                        @if (!string.IsNullOrEmpty(Model.AdvisorNote))
+                        {
+                            <div class="col-12">
+                                <div class="text-muted small">Danışman Notu</div>
+                                <div class="fw-semibold text-primary">@Model.AdvisorNote</div>
+                            </div>
+                        }
+                    </div>
+                </div>
+
+                <!-- Mülakatlar -->
+                @if (Model.Interviews != null && Model.Interviews.Any())
+                {
+                    <div class="card detail-card p-4 mb-4">
+                        <h6 class="fw-bold mb-3"><i class="bi bi-calendar-event me-2"></i>Mülakatlarım</h6>
+                        @foreach (var interview in Model.Interviews.OrderByDescending(i => i.InterviewDate))
+                        {
+                            <div class="border rounded-3 p-3 mb-2">
+                                <div class="d-flex justify-content-between mb-1">
+                                    <span class="fw-semibold small">@(interview.InterviewType ?? "Mülakat")</span>
+                                    <span class="text-muted small">@interview.InterviewDate.ToString("dd.MM.yyyy HH:mm")</span>
+                                </div>
+                                <div class="text-muted small">
+                                    <i class="bi bi-geo-alt me-1"></i>@(interview.Location ?? "Belirtilmedi")
+                                </div>
+                                @if (!string.IsNullOrEmpty(interview.Note))
+                                {
+                                    <div class="small mt-1">@interview.Note</div>
+                                }
+                            </div>
+                        }
+                    </div>
+                }
+
+                <!-- Durum geçmişi -->
+                @if (Model.StatusHistories != null && Model.StatusHistories.Any())
+                {
+                    <div class="card detail-card p-4 mb-4">
+                        <h6 class="fw-bold mb-3"><i class="bi bi-clock-history me-2"></i>Durum Geçmişi</h6>
+                        @foreach (var h in Model.StatusHistories.OrderByDescending(x => x.ChangedAt))
+                        {
+                            <div class="timeline-item">
+                                <div class="d-flex justify-content-between">
+                                    <div class="fw-semibold small">@h.NewStatus</div>
+                                    <div class="text-muted small">@h.ChangedAt.ToString("dd.MM.yyyy HH:mm")</div>
+                                </div>
+                                @if (!string.IsNullOrEmpty(h.Note))
+                                {
+                                    <div class="text-muted small">@h.Note</div>
+                                }
+                            </div>
+                        }
+                    </div>
+                }
+
+                <!-- Geri bildirimler -->
+                @if (Model.Feedbacks != null && Model.Feedbacks.Any())
+                {
+                    <div class="card detail-card p-4">
+                        <h6 class="fw-bold mb-3"><i class="bi bi-chat-left-text me-2"></i>Danışman Geri Bildirimleri</h6>
+                        @foreach (var fb in Model.Feedbacks.OrderByDescending(x => x.CreatedAt))
+                        {
+                            <div class="border rounded-3 p-3 mb-2">
+                                <div class="d-flex justify-content-between mb-1">
+                                    <span class="fw-semibold small">@fb.Advisor?.FullName</span>
+                                    <span class="text-muted small">@fb.CreatedAt.ToString("dd.MM.yyyy")</span>
+                                </div>
+                                <div class="small">@fb.Message</div>
+                            </div>
+                        }
+                    </div>
+                }
+            </div>
+
+            <!-- Sağ: İşlemler -->
+            <div class="col-lg-4">
+                <div class="card detail-card p-4">
+                    <h6 class="fw-bold mb-3"><i class="bi bi-gear me-2"></i>İşlemler</h6>
+                    <a href="/Student/EditApplication/@Model.Id"
+                       class="btn btn-outline-primary rounded-pill w-100 mb-2 fw-semibold">
+                        <i class="bi bi-pencil me-2"></i>Düzenle
+                    </a>
+                    <form method="post" action="/Student/DeleteApplication/@Model.Id"
+                          onsubmit="return confirm('Başvuruyu silmek istediğinize emin misiniz?')">
+                        @Html.AntiForgeryToken()
+                        <button type="submit" class="btn btn-outline-danger rounded-pill w-100 fw-semibold">
+                            <i class="bi bi-trash me-2"></i>Sil
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

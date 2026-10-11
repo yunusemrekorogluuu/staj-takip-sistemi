@@ -1,0 +1,218 @@
+﻿@{
+    ViewData["Title"] = "Yeni Başvuru";
+}
+
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Staj Takip — Yeni Başvuru</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet" />
+    <style>
+        body {
+            background: #f0f4f8;
+        }
+
+        .sidebar {
+            background: linear-gradient(180deg, #1e3a5f, #2e86de);
+            min-height: 100vh;
+            width: 240px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            padding: 1.5rem 1rem;
+            z-index: 100;
+        }
+
+            .sidebar .nav-link {
+                color: rgba(255,255,255,0.75);
+                border-radius: 8px;
+                padding: 0.6rem 1rem;
+                margin-bottom: 4px;
+                transition: all 0.2s;
+            }
+
+                .sidebar .nav-link:hover, .sidebar .nav-link.active {
+                    background: rgba(255,255,255,0.15);
+                    color: #fff;
+                }
+
+        .main-content {
+            margin-left: 240px;
+            padding: 2rem;
+        }
+
+        .form-card {
+            border: none;
+            border-radius: 16px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+        }
+
+        .form-control:focus, .form-select:focus {
+            border-color: #2e86de;
+            box-shadow: 0 0 0 0.2rem rgba(46,134,222,0.25);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="text-white text-center mb-4">
+            <i class="bi bi-briefcase-fill fs-3"></i>
+            <div class="fw-bold mt-1">Staj Takip</div>
+            <small class="opacity-75">@User.Identity?.Name</small>
+        </div>
+        <nav class="nav flex-column">
+            <a href="/Student/Dashboard" class="nav-link">
+                <i class="bi bi-speedometer2 me-2"></i>Dashboard
+            </a>
+            <a href="/Student/Applications" class="nav-link">
+                <i class="bi bi-list-ul me-2"></i>Başvurularım
+            </a>
+            <a href="/Student/Internships" class="nav-link">
+                <i class="bi bi-search me-2"></i>Staj İlanları
+            </a>
+            <a href="/Student/AddApplication" class="nav-link active">
+                <i class="bi bi-plus-circle me-2"></i>Manuel Başvuru
+            </a>
+        </nav>
+        <div class="position-absolute bottom-0 start-0 w-100 p-3">
+            <a href="/Student/Profile" class="nav-link">
+                <i class="bi bi-person-circle me-2"></i>Profilim
+            </a>
+            <a href="/Message/Inbox" class="nav-link">
+                <i class="bi bi-chat-dots me-2"></i>Mesajlar
+            </a>
+            <a href="/Account/Logout" class="nav-link text-white-50">
+                <i class="bi bi-box-arrow-left me-2"></i>Çıkış Yap
+            </a>
+        </div>
+    </div>
+
+    <!-- Ana içerik -->
+    <div class="main-content">
+        <div class="row justify-content-center">
+            <div class="col-lg-7">
+
+                <div class="mb-4">
+                    <a href="/Student/Applications" class="text-decoration-none text-muted small">
+                        <i class="bi bi-arrow-left me-1"></i>Başvurularıma dön
+                    </a>
+                    <h4 class="fw-bold mt-2 mb-0">Yeni Başvuru Ekle</h4>
+                    <small class="text-muted">Başvurduğunuz staj veya iş pozisyonunu ekleyin</small>
+                </div>
+
+                <div class="card form-card">
+                    <div class="card-body p-4">
+                        <form method="post" action="/Student/AddApplication" enctype="multipart/form-data">
+                            @Html.AntiForgeryToken()
+
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold">Şirket <span class="text-danger">*</span></label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="bi bi-building"></i></span>
+                                    <select name="companyName" class="form-select" required
+                                            onchange="updateCity(this)">
+                                        <option value="">— Şirket seçin —</option>
+                                        @if (ViewBag.Companies != null)
+                                        {
+                                            foreach (var company in ViewBag.Companies)
+                                            {
+                                                <option value="@company.CompanyName"
+                                                        data-city="@company.CompanyCity"
+                                                        data-sector="@company.CompanySector">
+                                                    @company.CompanyName
+                                                    @if (!string.IsNullOrEmpty(company.CompanyCity))
+                                                    {
+                                                        <text>— @company.CompanyCity</text>
+                                                    }
+                                                </option>
+                                            }
+                                        }
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold">Pozisyon <span class="text-danger">*</span></label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="bi bi-briefcase"></i></span>
+                                    <input type="text" name="position" class="form-control"
+                                           placeholder="Örn: Backend Stajyer" required />
+                                </div>
+                            </div>
+
+                            <div class="row g-3 mb-3">
+                                <div class="col-6">
+                                    <label class="form-label fw-semibold">Şehir</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text"><i class="bi bi-geo-alt"></i></span>
+                                        <input type="text" name="city" class="form-control" placeholder="İstanbul" />
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <label class="form-label fw-semibold">Başvuru Tarihi</label>
+                                    <input type="date" name="applicationDate" class="form-control" />
+                                </div>
+                            </div>
+
+                            @if (TempData["Error"] != null)
+                            {
+                                <div class="alert alert-danger border-0 rounded-3 py-2 mb-3">
+                                    <i class="bi bi-exclamation-circle me-2"></i>@TempData["Error"]
+                                </div>
+                            }
+
+                            <div class="mb-4">
+                                <label class="form-label fw-semibold">Notlar</label>
+                                <textarea name="notes" class="form-control" rows="3"
+                                          placeholder="Başvuru hakkında notlarınız..."></textarea>
+                            </div>
+
+                            @* yeni eklendi *@
+                            <div class="mb-4">
+                                <label class="form-label fw-semibold">CV / Özgeçmiş</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="bi bi-file-earmark-person"></i></span>
+                                    <input type="file" name="cvFile" class="form-control"
+                                           accept=".pdf,.doc,.docx" required />
+                                </div>
+                                <div class="form-text text-muted">
+                                    <i class="bi bi-info-circle me-1"></i>
+                                    PDF veya Word formatında, maksimum 5MB
+                                </div>
+                            </div>
+
+                            <div class="d-flex gap-2">
+                                <button type="submit" class="btn btn-primary rounded-pill px-4 fw-semibold">
+                                    <i class="bi bi-plus-lg me-2"></i>Başvuru Ekle
+                                </button>
+                                <a href="/Student/Applications" class="btn btn-outline-secondary rounded-pill px-4">
+                                    İptal
+                                </a>
+                            </div>
+                            <script>
+                                function updateCity(select) {
+                                    const option = select.options[select.selectedIndex];
+                                    const city   = option.getAttribute('data-city');
+                                    if (city) {
+                                        document.querySelector('input[name="city"]').value = city;
+                                    }
+                                }
+                            </script>
+
+
+                        </form>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

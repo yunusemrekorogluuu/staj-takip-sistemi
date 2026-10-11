@@ -1,0 +1,289 @@
+﻿@model StajTakip.Entities.Concrete.Application
+@{
+    ViewData["Title"] = "Başvuru Detay";
+}
+
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Staj Takip — Başvuru Detay</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet" />
+    <style>
+        body {
+            background: #f0f4f8;
+        }
+
+        .sidebar {
+            background: linear-gradient(180deg, #0d5c3a, #1a9e5f);
+            min-height: 100vh;
+            width: 240px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            padding: 1.5rem 1rem;
+            z-index: 100;
+        }
+
+            .sidebar .nav-link {
+                color: rgba(255,255,255,0.75);
+                border-radius: 8px;
+                padding: 0.6rem 1rem;
+                margin-bottom: 4px;
+                transition: all 0.2s;
+            }
+
+                .sidebar .nav-link:hover, .sidebar .nav-link.active {
+                    background: rgba(255,255,255,0.15);
+                    color: #fff;
+                }
+
+        .main-content {
+            margin-left: 240px;
+            padding: 2rem;
+        }
+
+        .detail-card {
+            border: none;
+            border-radius: 12px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+        }
+
+        .avatar {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: #1a9e5f;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 1.4rem;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="sidebar">
+        <div class="text-white text-center mb-4">
+            <i class="bi bi-building fs-3"></i>
+            <div class="fw-bold mt-1">Staj Takip</div>
+            <small class="opacity-75">@User.Identity?.Name</small>
+        </div>
+        <nav class="nav flex-column">
+            <a href="/Company/Dashboard" class="nav-link">
+                <i class="bi bi-speedometer2 me-2"></i>Dashboard
+            </a>
+            <a href="/Company/Applications" class="nav-link active">
+                <i class="bi bi-list-ul me-2"></i>Başvurular
+            </a>
+            <a href="/Company/MyPosts" class="nav-link">
+                <i class="bi bi-megaphone me-2"></i>İlanlarım
+            </a>
+            <a href="/Company/PostInternship" class="nav-link">
+                <i class="bi bi-plus-circle me-2"></i>İlan Yayınla
+            </a>
+        </nav>
+        <div class="position-absolute bottom-0 start-0 w-100 p-3">
+            <a href="/Company/Profile" class="nav-link">
+                <i class="bi bi-person-circle me-2"></i>Profilim
+            </a>
+            <a href="/Message/Inbox" class="nav-link">
+                <i class="bi bi-chat-dots me-2"></i>Mesajlar
+            </a>
+            <a href="/Account/Logout" class="nav-link text-white-50">
+                <i class="bi bi-box-arrow-left me-2"></i>Çıkış Yap
+            </a>
+        </div>
+    </div>
+
+    <div class="main-content">
+
+        <div class="mb-4">
+            <a href="/Company/Applications" class="text-decoration-none text-muted small">
+                <i class="bi bi-arrow-left me-1"></i>Başvurulara dön
+            </a>
+            <h4 class="fw-bold mt-2 mb-0">Başvuru Detayı</h4>
+        </div>
+
+        @if (TempData["Success"] != null)
+        {
+            <div class="alert alert-success border-0 rounded-3 py-2 mb-3">
+                <i class="bi bi-check-circle me-2"></i>@TempData["Success"]
+            </div>
+        }
+        @if (TempData["Warning"] != null)
+        {
+            <div class="alert alert-warning border-0 rounded-3 py-2 mb-3">
+                <i class="bi bi-exclamation-triangle me-2"></i>@TempData["Warning"]
+            </div>
+        }
+
+        <div class="row g-4">
+
+            <!-- Sol: Detaylar -->
+            <div class="col-lg-8">
+
+                <!-- Başvuru bilgileri -->
+                <div class="card detail-card p-4 mb-4">
+                    <h6 class="fw-bold mb-3"><i class="bi bi-briefcase me-2"></i>Başvuru Bilgileri</h6>
+                    <div class="row g-3">
+                        <div class="col-6">
+                            <div class="text-muted small">Pozisyon</div>
+                            <div class="fw-semibold">@Model.Position</div>
+                        </div>
+                        <div class="col-6">
+                            <div class="text-muted small">İlan</div>
+                            <div class="fw-semibold">@(Model.InternshipPost?.Title ?? "-")</div>
+                        </div>
+                        <div class="col-6">
+                            <div class="text-muted small">Başvuru Tarihi</div>
+                            <div class="fw-semibold">@(Model.ApplicationDate?.ToString("dd.MM.yyyy") ?? "-")</div>
+                        </div>
+
+                        @if (!string.IsNullOrEmpty(Model.CvFileName))
+                        {
+                            <div class="col-12">
+                                <div class="text-muted small">CV / Özgeçmiş</div>
+                                <a href="/uploads/cv/@Model.CvFileName" target="_blank"
+                                   class="btn btn-sm btn-outline-primary rounded-pill mt-1">
+                                    <i class="bi bi-file-earmark-person me-1"></i>
+                                    @(Model.CvOriginalName ?? "CV'yi Görüntüle")
+                                </a>
+                            </div>
+                        }
+
+                        <div class="col-6">
+                            <div class="text-muted small">Durum</div>
+                            @{
+                                var (bg, label) = Model.Status switch
+                                {
+                                    StajTakip.Entities.Concrete.ApplicationStatus.Sent => ("primary", "Bekliyor"),
+                                    StajTakip.Entities.Concrete.ApplicationStatus.Interview => ("warning", "Mülakat"),
+                                    StajTakip.Entities.Concrete.ApplicationStatus.Accepted => ("success", "Kabul"),
+                                    StajTakip.Entities.Concrete.ApplicationStatus.Rejected => ("danger", "Reddedildi"),
+                                    _ => ("secondary", "-")
+                                };
+                            }
+                            <span class="badge bg-@bg bg-opacity-10 text-@bg" style="font-size:0.8rem">@label</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Mülakatlar -->
+                @if (Model.Interviews != null && Model.Interviews.Any())
+                {
+                    <div class="card detail-card p-4 mb-4">
+                        <h6 class="fw-bold mb-3"><i class="bi bi-calendar-event me-2"></i>Mülakatlar</h6>
+                        @foreach (var interview in Model.Interviews.OrderByDescending(i => i.InterviewDate))
+                        {
+                            <div class="border rounded-3 p-3 mb-2">
+                                <div class="d-flex justify-content-between mb-1">
+                                    <span class="fw-semibold small">@interview.InterviewType</span>
+                                    <span class="text-muted small">@interview.InterviewDate.ToString("dd.MM.yyyy HH:mm")</span>
+                                </div>
+                                <div class="text-muted small">
+                                    <i class="bi bi-geo-alt me-1"></i>@(interview.Location ?? "Belirtilmedi")
+                                </div>
+                                @if (!string.IsNullOrEmpty(interview.Note))
+                                {
+                                    <div class="small mt-1">@interview.Note</div>
+                                }
+                            </div>
+                        }
+                    </div>
+                }
+
+                <!-- Mülakat tarihi belirle -->
+                @if (Model.Status == StajTakip.Entities.Concrete.ApplicationStatus.Sent ||
+                                Model.Status == StajTakip.Entities.Concrete.ApplicationStatus.Interview)
+                {
+                    <div class="card detail-card p-4 mb-4">
+                        <h6 class="fw-bold mb-3"><i class="bi bi-calendar-plus me-2"></i>Mülakat Tarihi Belirle</h6>
+                        <form method="post" action="/Company/SetInterview">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="applicationId" value="@Model.Id" />
+                            <div class="row g-3 mb-3">
+                                <div class="col-6">
+                                    <label class="form-label small fw-semibold">Tarih & Saat</label>
+                                    <input type="datetime-local" name="interviewDate" class="form-control" required />
+                                </div>
+                                <div class="col-6">
+                                    <label class="form-label small fw-semibold">Mülakat Türü</label>
+                                    <select name="interviewType" class="form-select">
+                                        <option value="İK Mülakatı">İK Mülakatı</option>
+                                        <option value="Teknik Mülakat">Teknik Mülakat</option>
+                                        <option value="İkinci Aşama">İkinci Aşama</option>
+                                    </select>
+                                </div>
+                                <div class="col-12">
+                                    <label class="form-label small fw-semibold">Yer / Link</label>
+                                    <input type="text" name="location" class="form-control"
+                                           placeholder="Online / Adres" />
+                                </div>
+                                <div class="col-12">
+                                    <label class="form-label small fw-semibold">Not</label>
+                                    <input type="text" name="note" class="form-control"
+                                           placeholder="Ek bilgi..." />
+                                </div>
+                            </div>
+                            <button type="submit" class="btn btn-primary rounded-pill px-4 fw-semibold">
+                                <i class="bi bi-calendar-check me-2"></i>Mülakat Belirle
+                            </button>
+                        </form>
+                    </div>
+                }
+            </div>
+
+            <!-- Sağ: Öğrenci + işlemler -->
+            <div class="col-lg-4">
+
+                <div class="card detail-card p-4 mb-4">
+                    <h6 class="fw-bold mb-3"><i class="bi bi-person me-2"></i>Öğrenci Bilgileri</h6>
+                    <div class="text-center mb-3">
+                        <div class="avatar mx-auto mb-2">@Model.Student?.FullName[0]</div>
+                        <div class="fw-bold">@Model.Student?.FullName</div>
+                        <div class="text-muted small">@Model.Student?.Email</div>
+                    </div>
+                    <div class="text-muted small mb-1">
+                        <i class="bi bi-hash me-1"></i>@(Model.Student?.StudentNumber ?? "-")
+                    </div>
+                    <div class="text-muted small">
+                        <i class="bi bi-book me-1"></i>@(Model.Student?.Department ?? "-")
+                    </div>
+                </div>
+
+                <!-- Kabul / Red -->
+                @if (Model.Status != StajTakip.Entities.Concrete.ApplicationStatus.Accepted &&
+                                Model.Status != StajTakip.Entities.Concrete.ApplicationStatus.Rejected)
+                {
+                    <div class="card detail-card p-4 mb-4">
+                        <h6 class="fw-bold mb-3"><i class="bi bi-clipboard-check me-2"></i>Karar Ver</h6>
+                        <form method="post" action="/Company/AcceptApplication/@Model.Id" class="mb-2">
+                            @Html.AntiForgeryToken()
+                            <button type="submit" class="btn btn-success rounded-pill w-100 fw-semibold">
+                                <i class="bi bi-check-lg me-2"></i>Kabul Et
+                            </button>
+                        </form>
+                        <form method="post" action="/Company/RejectApplication/@Model.Id">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="note" value="" />
+                            <button type="submit" class="btn btn-outline-danger rounded-pill w-100 fw-semibold">
+                                <i class="bi bi-x-lg me-2"></i>Reddet
+                            </button>
+                        </form>
+                    </div>
+                }
+
+                <!-- Değerlendirme -->
+              
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
